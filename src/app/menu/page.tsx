@@ -29,13 +29,14 @@ function AddedToast({ item, visible }: { item: string; visible: boolean }) {
   );
 }
 
-function MenuItemCard({ item }: { item: MenuItem }) {
+function MenuItemCard({ item, available = true }: { item: MenuItem; available?: boolean }) {
   const addItem = useCartStore((s) => s.addItem);
   const posthog = usePostHog();
   const [toastVisible, setToastVisible] = useState(false);
   const timeoutRef = useRef<ReturnType<typeof setTimeout>>(null);
 
   const handleAdd = useCallback(() => {
+    if (!available) return;
     addItem({
       menuItemId: item.id,
       name: item.name,
@@ -50,7 +51,7 @@ function MenuItemCard({ item }: { item: MenuItem }) {
     setToastVisible(true);
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     timeoutRef.current = setTimeout(() => setToastVisible(false), 1500);
-  }, [addItem, item, posthog]);
+  }, [addItem, item, posthog, available]);
 
   useEffect(() => {
     return () => {
@@ -61,7 +62,10 @@ function MenuItemCard({ item }: { item: MenuItem }) {
   return (
     <>
       <AddedToast item={item.name} visible={toastVisible} />
-      <div className="flex items-center gap-3 rounded-xl border border-border bg-white p-3">
+      <div className={cn(
+        "flex items-center gap-3 rounded-xl border border-border bg-white p-3",
+        !available && "opacity-50"
+      )}>
         {/* Item image */}
         {item.image && (
           <div className="h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-surface">
@@ -79,16 +83,26 @@ function MenuItemCard({ item }: { item: MenuItem }) {
         <div className="flex min-w-0 flex-1 flex-col gap-1">
           <span className="font-medium text-charcoal">{item.name}</span>
           <span className="text-sm text-muted line-clamp-2">{item.description}</span>
-          <span className="text-brand font-semibold">
-            {formatCurrency(item.price)}
-          </span>
+          {available ? (
+            <span className="text-brand font-semibold">
+              {formatCurrency(item.price)}
+            </span>
+          ) : (
+            <span className="text-xs font-medium text-red-500">Out of Stock</span>
+          )}
         </div>
 
         {/* Add button */}
         <button
           onClick={handleAdd}
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand text-white transition-colors hover:bg-brand-light active:bg-brand-light"
-          aria-label={`Add ${item.name} to cart`}
+          disabled={!available}
+          className={cn(
+            "flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-colors",
+            available
+              ? "bg-brand text-white hover:bg-brand-light active:bg-brand-light"
+              : "bg-gray-200 text-gray-400 cursor-not-allowed"
+          )}
+          aria-label={available ? `Add ${item.name} to cart` : `${item.name} is out of stock`}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -113,6 +127,14 @@ function MenuItemCard({ item }: { item: MenuItem }) {
 
 export default function MenuPage() {
   const [activeCategory, setActiveCategory] = useState(categories[0].id);
+  const [unavailable, setUnavailable] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    fetch("/api/menu/availability")
+      .then((r) => r.json())
+      .then((data) => setUnavailable(data))
+      .catch(() => {});
+  }, []);
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
   const pillsRef = useRef<HTMLDivElement>(null);
 
@@ -168,7 +190,7 @@ export default function MenuPage() {
               </h2>
               <div className="flex flex-col gap-3">
                 {items.map((item) => (
-                  <MenuItemCard key={item.id} item={item} />
+                  <MenuItemCard key={item.id} item={item} available={unavailable[item.id] !== false} />
                 ))}
               </div>
             </section>

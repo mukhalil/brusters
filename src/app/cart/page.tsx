@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePostHog } from "posthog-js/react";
 import { formatCurrency } from "@/lib/utils";
@@ -27,11 +27,22 @@ export default function CartPage() {
   const total = getCartTotal(items);
   const itemCount = items.reduce((sum, i) => sum + i.quantity, 0);
 
+  const [unavailable, setUnavailable] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    fetch("/api/menu/availability")
+      .then((r) => r.json())
+      .then((data) => setUnavailable(data))
+      .catch(() => {});
+  }, []);
+
   useEffect(() => {
     if (items.length > 0) {
       posthog.capture("cart_viewed", { itemCount, cartTotal: total });
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const unavailableInCart = items.filter((i) => unavailable[i.menuItemId] === false);
 
   return (
     <div className="flex min-h-dvh flex-col bg-surface">
@@ -66,6 +77,18 @@ export default function CartPage() {
           </div>
         ) : (
           <>
+            {unavailableInCart.length > 0 && (
+              <div role="alert" className="mb-3 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-600">
+                <p className="font-medium">Some items are no longer available:</p>
+                <ul className="mt-1 list-disc pl-4">
+                  {unavailableInCart.map((item) => (
+                    <li key={item.menuItemId}>{item.name}</li>
+                  ))}
+                </ul>
+                <p className="mt-1">Please remove them before checking out.</p>
+              </div>
+            )}
+
             <div className="flex flex-col gap-3">
               {items.map((item) => (
                 <div
@@ -188,11 +211,17 @@ export default function CartPage() {
 
             {/* Sticky checkout button */}
             <div className="sticky bottom-16 mt-6 pb-2">
-              <Link href="/checkout">
-                <Button variant="primary" size="lg" fullWidth>
-                  Proceed to Checkout
+              {unavailableInCart.length > 0 ? (
+                <Button variant="primary" size="lg" fullWidth disabled>
+                  Remove Unavailable Items to Continue
                 </Button>
-              </Link>
+              ) : (
+                <Link href="/checkout">
+                  <Button variant="primary" size="lg" fullWidth>
+                    Proceed to Checkout
+                  </Button>
+                </Link>
+              )}
             </div>
           </>
         )}

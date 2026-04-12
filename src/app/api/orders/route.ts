@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { orders } from "@/lib/db/schema";
+import { orders, menuItemAvailability } from "@/lib/db/schema";
 import { getMenuItemById, TAX_RATE } from "@/lib/menu-data";
 import { getPaymentProvider } from "@/lib/payment";
-import { desc, inArray, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, sql } from "drizzle-orm";
 
 export async function POST(request: NextRequest) {
   try {
@@ -114,6 +114,33 @@ export async function POST(request: NextRequest) {
         price: menuItem.price,
         quantity: item.quantity,
       });
+    }
+
+    // Check availability for all ordered items
+    const itemIds = verifiedItems.map((i) => i.menuItemId);
+    const unavailableRows = await db
+      .select()
+      .from(menuItemAvailability)
+      .where(
+        and(
+          inArray(menuItemAvailability.itemId, itemIds),
+          eq(menuItemAvailability.available, false)
+        )
+      );
+
+    if (unavailableRows.length > 0) {
+      const names = unavailableRows
+        .map((r) => {
+          const item = verifiedItems.find((i) => i.menuItemId === r.itemId);
+          return item?.name || r.itemId;
+        })
+        .join(", ");
+      return NextResponse.json(
+        {
+          error: `The following items are currently unavailable: ${names}. Please remove them and try again.`,
+        },
+        { status: 400 }
+      );
     }
 
     // Calculate totals with verified prices

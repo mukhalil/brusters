@@ -6,6 +6,7 @@ import {
   jsonb,
   timestamp,
   numeric,
+  boolean,
 } from "drizzle-orm/pg-core";
 
 export const orders = pgTable("orders", {
@@ -33,5 +34,11 @@ export const orders = pgTable("orders", {
   paymentId: varchar("payment_id", { length: 100 }),
 
   createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const menuItemAvailability = pgTable("menu_item_availability", {
+  itemId: varchar("item_id", { length: 100 }).primaryKey(),
+  available: boolean("available").notNull().default(true),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
