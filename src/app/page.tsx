@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function Home() {
   const router = useRouter();
@@ -44,9 +45,16 @@ export default function Home() {
       </div>
 
       {/* Footer */}
-      <p className="absolute bottom-6 text-sm text-muted/60">
-        Powered by Juni Platforms
-      </p>
+      <div className="absolute bottom-6 flex flex-col items-center gap-1">
+        <div className="flex items-center gap-3 text-xs text-muted/60">
+          <Link href="/terms" className="underline hover:text-muted">Terms</Link>
+          <span aria-hidden="true">&middot;</span>
+          <Link href="/privacy" className="underline hover:text-muted">Privacy</Link>
+        </div>
+        <p className="text-sm text-muted/60">
+          Powered by Juni Platforms
+        </p>
+      </div>
     </div>
   );
 }

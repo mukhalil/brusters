@@ -572,7 +572,8 @@ export default function CheckoutPage() {
                     </p>
                   )}
                   <p id="phone-help" className="mt-1.5 text-xs text-muted">
-                    We&apos;ll text you when your order is ready. By providing your number, you consent to receive a one-time SMS notification about this order. Standard messaging rates may apply.
+                    We&apos;ll text you when your order is ready. By providing your number, you consent to receive a one-time SMS notification about this order. Standard messaging rates may apply. See our{" "}
+                    <Link href="/privacy" className="text-brand underline">Privacy Policy</Link>.
                   </p>
                 </div>
               </div>
@@ -694,8 +695,14 @@ export default function CheckoutPage() {
       </main>
 
       {/* Sticky Place Order button */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-white p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+      <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-white px-4 pt-2 pb-[max(1rem,env(safe-area-inset-bottom))]">
         <div className="mx-auto max-w-lg">
+          <p className="mb-2 text-center text-[11px] leading-tight text-muted">
+            By placing this order, you agree to our{" "}
+            <Link href="/terms" className="text-brand underline">Terms of Service</Link>
+            {" "}and{" "}
+            <Link href="/privacy" className="text-brand underline">Privacy Policy</Link>.
+          </p>
           <Button
             variant="primary"
             size="lg"
