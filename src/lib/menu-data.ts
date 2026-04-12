@@ -122,9 +122,6 @@ export const menuItems: MenuItem[] = [
     name: "Small Bruster's Blast",
     description: "Ice cream blended with your favorite mix-ins",
     price: 7.99,
-    scoops: 1,
-    allowFlavors: true,
-    allowExtras: true,
   },
   {
     id: "medium-blast",
@@ -132,9 +129,6 @@ export const menuItems: MenuItem[] = [
     name: "Medium Bruster's Blast",
     description: "Ice cream blended with your favorite mix-ins",
     price: 8.99,
-    scoops: 2,
-    allowFlavors: true,
-    allowExtras: true,
   },
 
   // Sundaes
@@ -144,9 +138,6 @@ export const menuItems: MenuItem[] = [
     name: "Hot Fudge Brownie",
     description: "Ice cream topped with hot fudge and brownie pieces",
     price: 9.99,
-    scoops: 2,
-    allowFlavors: true,
-    allowExtras: false,
   },
   {
     id: "banana-split",
@@ -154,9 +145,6 @@ export const menuItems: MenuItem[] = [
     name: "Banana Split",
     description: "Three scoops with banana, fudge, strawberry, pineapple, and whipped cream",
     price: 9.99,
-    scoops: 3,
-    allowFlavors: true,
-    allowExtras: false,
   },
   {
     id: "strawberry-shortcake",
@@ -164,9 +152,6 @@ export const menuItems: MenuItem[] = [
     name: "Strawberry Shortcake",
     description: "Ice cream with fresh strawberry topping and shortcake",
     price: 9.99,
-    scoops: 2,
-    allowFlavors: true,
-    allowExtras: false,
   },
   {
     id: "turtle-sundae",
@@ -174,9 +159,6 @@ export const menuItems: MenuItem[] = [
     name: "Turtle Sundae",
     description: "Ice cream with caramel, hot fudge, and pecans",
     price: 8.99,
-    scoops: 2,
-    allowFlavors: true,
-    allowExtras: false,
   },
   {
     id: "pb-cup-sundae",
@@ -184,9 +166,6 @@ export const menuItems: MenuItem[] = [
     name: "Peanut Butter Cup Sundae",
     description: "Ice cream with peanut butter cups and chocolate sauce",
     price: 8.99,
-    scoops: 2,
-    allowFlavors: true,
-    allowExtras: false,
   },
   {
     id: "build-your-own-sundae",
