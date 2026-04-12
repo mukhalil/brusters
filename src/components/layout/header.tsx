@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useCartStore, getCartTotalItems } from "@/stores/cart-store";
 
 export function Header() {
@@ -9,8 +10,15 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 flex h-14 items-center justify-between border-b border-border bg-white px-4">
-      <Link href="/menu" className="text-lg font-bold text-brand">
-        Brusters
+      <Link href="/menu" className="flex items-center">
+        <Image
+          src="/BrustersLogo.svg"
+          alt="Bruster's Real Ice Cream"
+          width={110}
+          height={43}
+          className="h-8 w-auto"
+          priority
+        />
       </Link>
 
       <Link href="/cart" className="relative min-h-[44px] min-w-[44px] flex items-center justify-center">
