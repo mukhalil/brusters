@@ -59,6 +59,7 @@ export default function CheckoutPage() {
       });
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  const [deliveryMode, setDeliveryMode] = useState<"curbside" | "counter" | null>(null);
   const [locationMethod, setLocationMethod] = useState<LocationMethod>(null);
   const [carColor, setCarColor] = useState<string | null>(null);
   const [carType, setCarType] = useState<string | null>(null);
@@ -299,18 +300,16 @@ export default function CheckoutPage() {
           </p>
 
           <div className="flex flex-col gap-3">
-            {/* GPS option */}
+            {/* Curbside delivery option */}
             <button
               onClick={() => {
-                setLocationMethod("gps");
-                posthog.capture("location_method_selected", { method: "gps" });
-                if (!location && !geoLoading) {
-                  requestLocation();
-                }
+                setDeliveryMode("curbside");
+                if (locationMethod === "counter") setLocationMethod(null);
+                posthog.capture("location_method_selected", { method: "curbside" });
               }}
               className={cn(
                 "w-full rounded-xl border p-4 text-left transition-colors",
-                locationMethod === "gps"
+                deliveryMode === "curbside"
                   ? "border-brand bg-white ring-1 ring-brand"
                   : "border-border bg-white"
               )}
@@ -319,108 +318,154 @@ export default function CheckoutPage() {
                 <div
                   className={cn(
                     "flex h-5 w-5 items-center justify-center rounded-full border-2",
+                    deliveryMode === "curbside"
+                      ? "border-brand"
+                      : "border-muted/40"
+                  )}
+                >
+                  {deliveryMode === "curbside" && (
+                    <div className="h-2.5 w-2.5 rounded-full bg-brand" />
+                  )}
+                </div>
+                <div className="flex-1">
+                  <p className="font-medium text-charcoal">
+                    Deliver to My Car
+                  </p>
+                  <p className="text-sm text-muted">
+                    We&apos;ll bring it right to you
+                  </p>
+                </div>
+              </div>
+            </button>
+
+            {/* Curbside sub-options */}
+            {deliveryMode === "curbside" && (
+              <div className="flex flex-col gap-3 pl-4">
+                {/* GPS sub-option */}
+                <button
+                  onClick={() => {
+                    setLocationMethod("gps");
+                    posthog.capture("location_method_selected", { method: "gps" });
+                    if (!location && !geoLoading) {
+                      requestLocation();
+                    }
+                  }}
+                  className={cn(
+                    "w-full rounded-xl border p-4 text-left transition-colors",
                     locationMethod === "gps"
-                      ? "border-brand"
-                      : "border-muted/40"
+                      ? "border-brand bg-white ring-1 ring-brand"
+                      : "border-border bg-white"
                   )}
                 >
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={cn(
+                        "flex h-5 w-5 items-center justify-center rounded-full border-2",
+                        locationMethod === "gps"
+                          ? "border-brand"
+                          : "border-muted/40"
+                      )}
+                    >
+                      {locationMethod === "gps" && (
+                        <div className="h-2.5 w-2.5 rounded-full bg-brand" />
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-medium text-charcoal">
+                        Share My Location
+                      </p>
+                      <p className="text-sm text-muted">
+                        We&apos;ll use GPS to find you
+                      </p>
+                    </div>
+                  </div>
+
                   {locationMethod === "gps" && (
-                    <div className="h-2.5 w-2.5 rounded-full bg-brand" />
+                    <div className="mt-3 pl-8">
+                      {geoLoading && (
+                        <div className="flex items-center gap-2 text-sm text-muted">
+                          <LoadingSpinner size="sm" />
+                          <span>Getting your location...</span>
+                        </div>
+                      )}
+                      {location && !geoLoading && (
+                        <div className="flex items-center gap-2 text-sm text-green-600">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-4 w-4"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={2.5}
+                            aria-hidden="true"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M4.5 12.75l6 6 9-13.5"
+                            />
+                          </svg>
+                          <span>Location shared</span>
+                        </div>
+                      )}
+                      {geoError && !geoLoading && (
+                        <div className="rounded-lg border border-red-200 bg-red-50 p-3">
+                          <p className="text-sm text-red-600 leading-snug">{geoError}</p>
+                        </div>
+                      )}
+                    </div>
                   )}
-                </div>
-                <div className="flex-1">
-                  <p className="font-medium text-charcoal">
-                    Share My Location
-                  </p>
-                  <p className="text-sm text-muted">
-                    We&apos;ll use GPS to find you
-                  </p>
-                </div>
-              </div>
+                </button>
 
-              {locationMethod === "gps" && (
-                <div className="mt-3 pl-8">
-                  {geoLoading && (
-                    <div className="flex items-center gap-2 text-sm text-muted">
-                      <LoadingSpinner size="sm" />
-                      <span>Getting your location...</span>
-                    </div>
-                  )}
-                  {location && !geoLoading && (
-                    <div className="flex items-center gap-2 text-sm text-green-600">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth={2.5}
-                        aria-hidden="true"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M4.5 12.75l6 6 9-13.5"
-                        />
-                      </svg>
-                      <span>Location shared</span>
-                    </div>
-                  )}
-                  {geoError && !geoLoading && (
-                    <div className="rounded-lg border border-red-200 bg-red-50 p-3">
-                      <p className="text-sm text-red-600 leading-snug">{geoError}</p>
-                    </div>
-                  )}
-                </div>
-              )}
-            </button>
-
-            {/* Car description option */}
-            <button
-              onClick={() => {
-                setLocationMethod("car");
-                posthog.capture("location_method_selected", { method: "car" });
-              }}
-              className={cn(
-                "w-full rounded-xl border p-4 text-left transition-colors",
-                locationMethod === "car"
-                  ? "border-brand bg-white ring-1 ring-brand"
-                  : "border-border bg-white"
-              )}
-            >
-              <div className="flex items-center gap-3">
-                <div
+                {/* Car description sub-option */}
+                <button
+                  onClick={() => {
+                    setLocationMethod("car");
+                    posthog.capture("location_method_selected", { method: "car" });
+                  }}
                   className={cn(
-                    "flex h-5 w-5 items-center justify-center rounded-full border-2",
+                    "w-full rounded-xl border p-4 text-left transition-colors",
                     locationMethod === "car"
-                      ? "border-brand"
-                      : "border-muted/40"
+                      ? "border-brand bg-white ring-1 ring-brand"
+                      : "border-border bg-white"
                   )}
                 >
-                  {locationMethod === "car" && (
-                    <div className="h-2.5 w-2.5 rounded-full bg-brand" />
-                  )}
-                </div>
-                <div className="flex-1">
-                  <p className="font-medium text-charcoal">
-                    Describe Your Car
-                  </p>
-                  <p className="text-sm text-muted">
-                    Tell us what to look for
-                  </p>
-                </div>
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={cn(
+                        "flex h-5 w-5 items-center justify-center rounded-full border-2",
+                        locationMethod === "car"
+                          ? "border-brand"
+                          : "border-muted/40"
+                      )}
+                    >
+                      {locationMethod === "car" && (
+                        <div className="h-2.5 w-2.5 rounded-full bg-brand" />
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-medium text-charcoal">
+                        Describe Your Car
+                      </p>
+                      <p className="text-sm text-muted">
+                        Tell us what to look for
+                      </p>
+                    </div>
+                  </div>
+                </button>
               </div>
-            </button>
+            )}
 
             {/* Counter pickup option */}
             <button
               onClick={() => {
+                setDeliveryMode("counter");
                 setLocationMethod("counter");
                 posthog.capture("location_method_selected", { method: "counter" });
               }}
               className={cn(
                 "w-full rounded-xl border p-4 text-left transition-colors",
-                locationMethod === "counter"
+                deliveryMode === "counter"
                   ? "border-brand bg-white ring-1 ring-brand"
                   : "border-border bg-white"
               )}
@@ -429,12 +474,12 @@ export default function CheckoutPage() {
                 <div
                   className={cn(
                     "flex h-5 w-5 items-center justify-center rounded-full border-2",
-                    locationMethod === "counter"
+                    deliveryMode === "counter"
                       ? "border-brand"
                       : "border-muted/40"
                   )}
                 >
-                  {locationMethod === "counter" && (
+                  {deliveryMode === "counter" && (
                     <div className="h-2.5 w-2.5 rounded-full bg-brand" />
                   )}
                 </div>
@@ -449,7 +494,7 @@ export default function CheckoutPage() {
               </div>
             </button>
 
-            {locationMethod === "counter" && (
+            {deliveryMode === "counter" && (
               <div className="flex flex-col gap-3 rounded-xl border border-border bg-white p-4">
                 <div>
                   <label
