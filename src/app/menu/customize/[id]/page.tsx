@@ -51,6 +51,11 @@ export default function CustomizePage({
   const extrasTotal = selectedExtras.length * EXTRA_PRICE;
   const itemTotal = item.price + extrasTotal;
 
+  // Filter flavors if item has a restricted set
+  const availableFlavors = item.flavorSet
+    ? flavors.filter((f) => item.flavorSet!.includes(f.id))
+    : flavors;
+
   const canAddToCart =
     item.allowFlavors ? selectedFlavors.length >= 1 : true;
 
@@ -163,7 +168,7 @@ export default function CustomizePage({
             </div>
 
             <div className="flex flex-col gap-1.5">
-              {flavors.map((flavor) => {
+              {availableFlavors.map((flavor) => {
                 const isSelected = selectedFlavors.includes(flavor.name);
                 const isFlavorUnavailable = unavailable[flavor.id] === false;
                 const isAtMax = selectedFlavors.length >= maxFlavors && !isSelected;

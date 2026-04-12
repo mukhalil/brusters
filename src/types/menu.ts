@@ -13,6 +13,7 @@ export interface MenuItem {
   scoops?: number; // max flavors customer can pick (e.g., 2 for small cup)
   allowFlavors?: boolean; // true → navigates to customize page
   allowExtras?: boolean; // true → extras section on customize page
+  flavorSet?: string[]; // restrict to specific flavor IDs (omit = all flavors)
 }
 
 export interface Flavor {

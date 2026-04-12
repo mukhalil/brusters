@@ -229,6 +229,7 @@ export const menuItems: MenuItem[] = [
     price: 7.79,
     scoops: 1,
     allowFlavors: true,
+    flavorSet: ["blue-pop-ice", "cherry-ice", "lime-ice", "orange-sherbet", "watermelon-ice"],
     allowExtras: false,
   },
 
