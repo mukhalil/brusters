@@ -159,6 +159,16 @@ export default function OrderTrackingPage({
       </header>
 
       <main className="mx-auto w-full max-w-lg flex-1 px-4 py-6">
+        {/* Order code hero */}
+        <div className="mb-6 flex flex-col items-center gap-1 rounded-2xl border border-border bg-white py-6">
+          <p className="text-xs font-semibold uppercase tracking-widest text-muted">
+            Order Code
+          </p>
+          <p className="text-6xl font-black tracking-tight text-brand">
+            {shortOrderId(order.id)}
+          </p>
+        </div>
+
         {/* Main status message */}
         <div className="mb-6 text-center">
           <p className="text-xl font-bold text-charcoal">
