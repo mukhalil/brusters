@@ -9,18 +9,18 @@ const geistSans = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "Bruster's Real Ice Cream – La Cañada",
+  title: "Bruster's of La Cañada",
   description: "Order your favorite Bruster's ice cream for curbside pickup. We'll bring it right to your car.",
   openGraph: {
-    title: "Bruster's Real Ice Cream – La Cañada",
+    title: "Bruster's of La Cañada",
     description: "Order from your car and we'll bring it to you.",
-    siteName: "Bruster's Real Ice Cream",
+    siteName: "Bruster's of La Cañada",
     locale: "en_US",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Bruster's Real Ice Cream – La Cañada",
+    title: "Bruster's of La Cañada",
     description: "Order from your car and we'll bring it to you.",
   },
 };
