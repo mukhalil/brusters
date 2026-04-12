@@ -123,8 +123,9 @@ export default function OrderTrackingPage({
         <header className="sticky top-0 z-50 flex h-14 items-center justify-center border-b border-border bg-white px-4">
           <h1 className="text-lg font-bold text-charcoal">Order Status</h1>
         </header>
-        <div className="flex flex-1 items-center justify-center">
+        <div className="flex flex-1 items-center justify-center" role="status">
           <LoadingSpinner size="lg" />
+          <span className="sr-only">Loading order status</span>
         </div>
       </div>
     );
@@ -172,7 +173,7 @@ export default function OrderTrackingPage({
         </div>
 
         {/* Main status message */}
-        <div className="mb-6 text-center">
+        <div className="mb-6 text-center" role="status" aria-live="polite" aria-atomic="true">
           <p className="text-xl font-bold text-charcoal">
             {getStatusMessages(order.locationType)[order.status]}
           </p>

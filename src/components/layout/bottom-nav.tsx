@@ -83,7 +83,7 @@ export function BottomNav() {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 flex h-14 items-center justify-around border-t border-border bg-white pb-[env(safe-area-inset-bottom)]">
+    <nav aria-label="Main navigation" className="fixed bottom-0 left-0 right-0 z-50 flex h-14 items-center justify-around border-t border-border bg-white pb-[env(safe-area-inset-bottom)]">
       {tabs.map((tab) => {
         const isTrackOrder = tab.label === "Track Order";
         const isActive =
@@ -94,6 +94,9 @@ export function BottomNav() {
           <Link
             key={tab.label}
             href={tab.href}
+            aria-label={tab.label === "Cart" && totalItems > 0 ? `Cart, ${totalItems} items` : tab.label}
+            aria-disabled={isTrackOrder ? "true" : undefined}
+            aria-current={isActive ? "page" : undefined}
             className={cn(
               "relative flex min-h-[44px] min-w-[44px] flex-col items-center justify-center gap-0.5 text-[11px] font-medium",
               isActive && "text-brand",
@@ -104,7 +107,7 @@ export function BottomNav() {
             <div className="relative">
               {tab.icon}
               {"badge" in tab && tab.badge && (
-                <span className="absolute -top-1.5 -right-2.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-brand px-0.5 text-[10px] font-bold text-white">
+                <span aria-hidden="true" className="absolute -top-1.5 -right-2.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-brand px-0.5 text-[10px] font-bold text-white">
                   {tab.badge}
                 </span>
               )}

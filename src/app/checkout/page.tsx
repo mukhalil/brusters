@@ -166,6 +166,7 @@ export default function CheckoutPage() {
         <header className="sticky top-0 z-50 flex h-14 items-center border-b border-border bg-white px-4">
           <Link
             href="/cart"
+            aria-label="Back to cart"
             className="flex min-h-[44px] min-w-[44px] items-center justify-center text-charcoal"
           >
             <svg
@@ -234,6 +235,8 @@ export default function CheckoutPage() {
         <section className="mb-5">
           <button
             onClick={() => setSummaryExpanded(!summaryExpanded)}
+            aria-expanded={summaryExpanded}
+            aria-label="Toggle order summary"
             className="flex w-full items-center justify-between rounded-xl border border-border bg-white p-4"
           >
             <div>
@@ -319,13 +322,16 @@ export default function CheckoutPage() {
 
         {/* Location Method */}
         <section className="mb-5">
-          <p className="mb-2 text-sm font-semibold text-charcoal">
+          <fieldset>
+          <legend className="mb-2 text-sm font-semibold text-charcoal">
             How would you like your order?
-          </p>
+          </legend>
 
-          <div className="flex flex-col gap-3">
+          <div role="radiogroup" aria-label="Delivery method" className="flex flex-col gap-3">
             {/* Curbside delivery option */}
             <button
+              role="radio"
+              aria-checked={deliveryMode === "curbside"}
               onClick={() => {
                 setDeliveryMode("curbside");
                 if (locationMethod === "counter") setLocationMethod(null);
@@ -482,6 +488,8 @@ export default function CheckoutPage() {
 
             {/* Counter pickup option */}
             <button
+              role="radio"
+              aria-checked={deliveryMode === "counter"}
               onClick={() => {
                 setDeliveryMode("counter");
                 setLocationMethod("counter");
@@ -532,6 +540,8 @@ export default function CheckoutPage() {
                     type="tel"
                     inputMode="tel"
                     autoComplete="tel"
+                    aria-describedby="phone-error phone-help"
+                    aria-invalid={phoneNumber.length > 0 && phoneNumber.replace(/\D/g, "").length < 10 ? "true" : undefined}
                     value={phoneNumber}
                     onChange={(e) => {
                       // Auto-format as US number: (XXX) XXX-XXXX
@@ -557,11 +567,11 @@ export default function CheckoutPage() {
                     )}
                   />
                   {phoneNumber.length > 0 && phoneNumber.replace(/\D/g, "").length < 10 && (
-                    <p className="mt-1 text-xs text-red-500">
+                    <p id="phone-error" role="alert" className="mt-1 text-xs text-red-500">
                       Please enter a valid 10-digit US phone number
                     </p>
                   )}
-                  <p className="mt-1.5 text-xs text-muted">
+                  <p id="phone-help" className="mt-1.5 text-xs text-muted">
                     We&apos;ll text you when your order is ready. By providing your number, you consent to receive a one-time SMS notification about this order. Standard messaging rates may apply.
                   </p>
                 </div>
@@ -641,7 +651,9 @@ export default function CheckoutPage() {
 
                 {/* Optional notes */}
                 <div>
+                  <label htmlFor="additional-notes" className="sr-only">Additional notes (optional)</label>
                   <input
+                    id="additional-notes"
                     type="text"
                     value={additionalNotes}
                     onChange={(e) => setAdditionalNotes(e.target.value)}
@@ -652,6 +664,7 @@ export default function CheckoutPage() {
               </div>
             )}
           </div>
+          </fieldset>
         </section>
 
         {/* Payment - only shown when Square is active */}
@@ -674,7 +687,7 @@ export default function CheckoutPage() {
         )}
 
         {submitError && (
-          <div className="mb-4 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-600">
+          <div role="alert" className="mb-4 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-600">
             {submitError}
           </div>
         )}

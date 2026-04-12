@@ -50,7 +50,9 @@ export default function StaffLoginPage() {
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <label htmlFor="staff-pin" className="sr-only">Staff PIN</label>
           <input
+            id="staff-pin"
             type="password"
             inputMode="numeric"
             pattern="[0-9]*"
@@ -63,11 +65,13 @@ export default function StaffLoginPage() {
             }}
             placeholder="Enter PIN"
             autoFocus
+            aria-describedby={error ? "pin-error" : undefined}
+            aria-invalid={error ? "true" : undefined}
             className="w-full rounded-xl border border-border bg-surface px-4 py-4 text-center text-2xl font-bold tracking-[0.3em] text-charcoal placeholder:text-sm placeholder:font-normal placeholder:tracking-normal placeholder:text-muted/60 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
           />
 
           {error && (
-            <p className="text-center text-sm text-red-500">{error}</p>
+            <p id="pin-error" role="alert" className="text-center text-sm text-red-500">{error}</p>
           )}
 
           <Button

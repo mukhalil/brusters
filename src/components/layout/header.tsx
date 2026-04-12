@@ -21,7 +21,7 @@ export function Header() {
         <span className="text-[11px] font-semibold tracking-wide text-charcoal">of La Ca&ntilde;ada</span>
       </Link>
 
-      <Link href="/cart" className="relative min-h-[44px] min-w-[44px] flex items-center justify-center">
+      <Link href="/cart" aria-label={`View cart${totalItems > 0 ? `, ${totalItems} items` : ""}`} className="relative min-h-[44px] min-w-[44px] flex items-center justify-center">
         {/* Shopping bag icon */}
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -40,7 +40,7 @@ export function Header() {
         </svg>
 
         {totalItems > 0 && (
-          <span className="absolute -top-0.5 -right-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-brand px-1 text-[11px] font-bold text-white">
+          <span aria-hidden="true" className="absolute -top-0.5 -right-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-brand px-1 text-[11px] font-bold text-white">
             {totalItems > 99 ? "99+" : totalItems}
           </span>
         )}

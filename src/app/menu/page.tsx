@@ -14,6 +14,9 @@ import type { MenuItem } from "@/types/menu";
 function AddedToast({ item, visible }: { item: string; visible: boolean }) {
   return (
     <div
+      role="status"
+      aria-live="polite"
+      aria-atomic="true"
       className={cn(
         "fixed top-18 left-1/2 z-[100] -translate-x-1/2 rounded-lg bg-charcoal px-4 py-2 text-sm font-medium text-white shadow-lg transition-all duration-300",
         visible
