@@ -1,0 +1,180 @@
+import { NextRequest, NextResponse } from "next/server";
+import { db } from "@/lib/db";
+import { orders } from "@/lib/db/schema";
+import { getMenuItemById, TAX_RATE } from "@/lib/menu-data";
+import { getPaymentProvider } from "@/lib/payment";
+import { desc, inArray, sql } from "drizzle-orm";
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const {
+      customerName,
+      locationType,
+      latitude,
+      longitude,
+      carDescription,
+      additionalNotes,
+      items,
+    } = body;
+
+    // Validate required fields
+    if (!customerName || typeof customerName !== "string") {
+      return NextResponse.json(
+        { error: "customerName is required" },
+        { status: 400 }
+      );
+    }
+
+    if (locationType !== "gps" && locationType !== "car") {
+      return NextResponse.json(
+        { error: "locationType must be 'gps' or 'car'" },
+        { status: 400 }
+      );
+    }
+
+    if (locationType === "gps") {
+      if (latitude == null || longitude == null) {
+        return NextResponse.json(
+          { error: "latitude and longitude are required for GPS location" },
+          { status: 400 }
+        );
+      }
+    }
+
+    if (locationType === "car") {
+      if (!carDescription || typeof carDescription !== "string") {
+        return NextResponse.json(
+          { error: "carDescription is required for car location" },
+          { status: 400 }
+        );
+      }
+    }
+
+    if (!Array.isArray(items) || items.length === 0) {
+      return NextResponse.json(
+        { error: "items must be a non-empty array" },
+        { status: 400 }
+      );
+    }
+
+    // Look up real prices from menu data — never trust client prices
+    const verifiedItems: Array<{
+      menuItemId: string;
+      name: string;
+      price: number;
+      quantity: number;
+    }> = [];
+
+    for (const item of items) {
+      if (!item.menuItemId || !item.quantity || item.quantity < 1) {
+        return NextResponse.json(
+          { error: `Invalid item: ${JSON.stringify(item)}` },
+          { status: 400 }
+        );
+      }
+
+      const menuItem = getMenuItemById(item.menuItemId);
+      if (!menuItem) {
+        return NextResponse.json(
+          { error: `Menu item not found: ${item.menuItemId}` },
+          { status: 400 }
+        );
+      }
+
+      verifiedItems.push({
+        menuItemId: menuItem.id,
+        name: menuItem.name,
+        price: menuItem.price,
+        quantity: item.quantity,
+      });
+    }
+
+    // Calculate totals with verified prices
+    const subtotal = verifiedItems.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    );
+    const tax = subtotal * TAX_RATE;
+    const total = subtotal + tax;
+
+    // Process payment
+    const paymentProvider = getPaymentProvider();
+    const paymentResult = await paymentProvider.processPayment(total);
+
+    if (!paymentResult.success) {
+      return NextResponse.json(
+        { error: paymentResult.error || "Payment failed" },
+        { status: 400 }
+      );
+    }
+
+    // Insert order
+    const [order] = await db
+      .insert(orders)
+      .values({
+        customerName,
+        locationType,
+        latitude: locationType === "gps" ? String(latitude) : null,
+        longitude: locationType === "gps" ? String(longitude) : null,
+        carDescription: locationType === "car" ? carDescription : null,
+        additionalNotes: additionalNotes || null,
+        items: verifiedItems,
+        subtotal: subtotal.toFixed(2),
+        tax: tax.toFixed(2),
+        total: total.toFixed(2),
+        paymentId: paymentResult.paymentId,
+      })
+      .returning();
+
+    return NextResponse.json({ id: order.id }, { status: 201 });
+  } catch (error) {
+    console.error("Error creating order:", error);
+    return NextResponse.json(
+      { error: "Failed to create order" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function GET(request: NextRequest) {
+  try {
+    const staffPin = request.headers.get("x-staff-pin");
+    if (!staffPin || staffPin !== process.env.STAFF_PIN) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const status = searchParams.get("status") || "active";
+
+    let result;
+
+    if (status === "active") {
+      result = await db
+        .select()
+        .from(orders)
+        .where(
+          inArray(orders.status, [
+            "received",
+            "preparing",
+            "ready",
+            "delivering",
+          ])
+        )
+        .orderBy(sql`${orders.createdAt} asc`);
+    } else {
+      result = await db
+        .select()
+        .from(orders)
+        .orderBy(sql`${orders.createdAt} asc`);
+    }
+
+    return NextResponse.json(result);
+  } catch (error) {
+    console.error("Error listing orders:", error);
+    return NextResponse.json(
+      { error: "Failed to list orders" },
+      { status: 500 }
+    );
+  }
+}

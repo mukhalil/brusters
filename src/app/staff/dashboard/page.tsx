@@ -1,0 +1,287 @@
+"use client";
+
+import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import { usePostHog } from "posthog-js/react";
+import { formatCurrency, timeAgo, shortOrderId, cn } from "@/lib/utils";
+import {
+  ORDER_STATUS_FLOW,
+  NEXT_STATUS_ACTION,
+  STATUS_LABELS,
+} from "@/types/order";
+import type { Order, OrderStatus } from "@/types/order";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
+
+type FilterMode = "active" | "all";
+
+function getNextStatus(current: OrderStatus): OrderStatus | null {
+  const idx = ORDER_STATUS_FLOW.indexOf(current);
+  if (idx === -1 || idx >= ORDER_STATUS_FLOW.length - 1) return null;
+  return ORDER_STATUS_FLOW[idx + 1];
+}
+
+function OrderCard({
+  order,
+  staffPin,
+  onStatusChange,
+}: {
+  order: Order;
+  staffPin: string;
+  onStatusChange: () => void;
+}) {
+  const posthog = usePostHog();
+  const [updating, setUpdating] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
+
+  const nextStatus = getNextStatus(order.status);
+  const actionLabel = NEXT_STATUS_ACTION[order.status];
+  const isTerminal =
+    order.status === "completed" || order.status === "cancelled";
+
+  async function handleAdvance() {
+    if (!nextStatus) return;
+    setUpdating(true);
+    try {
+      await fetch(`/api/orders/${order.id}/status`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "x-staff-pin": staffPin,
+        },
+        body: JSON.stringify({ status: nextStatus }),
+      });
+      posthog.capture("order_status_changed", {
+        orderId: order.id,
+        fromStatus: order.status,
+        toStatus: nextStatus,
+      });
+      onStatusChange();
+    } finally {
+      setUpdating(false);
+    }
+  }
+
+  async function handleCancel() {
+    setCancelling(true);
+    try {
+      await fetch(`/api/orders/${order.id}/status`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "x-staff-pin": staffPin,
+        },
+        body: JSON.stringify({ status: "cancelled" }),
+      });
+      posthog.capture("order_status_changed", {
+        orderId: order.id,
+        fromStatus: order.status,
+        toStatus: "cancelled",
+      });
+      onStatusChange();
+    } finally {
+      setCancelling(false);
+    }
+  }
+
+  // Build condensed items string
+  const itemsSummary = order.items
+    .map((i) => `${i.quantity}x ${i.name}`)
+    .join(", ");
+
+  return (
+    <div className="rounded-xl border border-border bg-white p-4">
+      {/* Header row */}
+      <div className="mb-2 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span className="font-bold text-charcoal">
+            {shortOrderId(order.id)}
+          </span>
+          <span className="text-xs text-muted">
+            {timeAgo(order.createdAt)}
+          </span>
+        </div>
+        <Badge variant={order.status}>
+          {STATUS_LABELS[order.status]}
+        </Badge>
+      </div>
+
+      {/* Customer name */}
+      <p className="mb-1 text-sm font-medium text-charcoal">
+        {order.customerName}
+      </p>
+
+      {/* Location */}
+      <div className="mb-2 text-sm text-muted">
+        {order.locationType === "gps" && order.latitude && order.longitude ? (
+          <a
+            href={`https://www.google.com/maps?q=${order.latitude},${order.longitude}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-brand underline"
+          >
+            View on Map
+          </a>
+        ) : (
+          <div>
+            {order.carDescription && <p>{order.carDescription}</p>}
+            {order.additionalNotes && (
+              <p className="text-xs text-muted">{order.additionalNotes}</p>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Items */}
+      <p className="mb-2 text-xs text-muted">{itemsSummary}</p>
+
+      {/* Total */}
+      <p className="mb-3 text-sm font-semibold text-charcoal">
+        {formatCurrency(parseFloat(order.total))}
+      </p>
+
+      {/* Actions */}
+      {!isTerminal && (
+        <div className="flex items-center gap-3">
+          {actionLabel && (
+            <Button
+              variant="primary"
+              size="sm"
+              loading={updating}
+              onClick={handleAdvance}
+            >
+              {actionLabel}
+            </Button>
+          )}
+          <button
+            onClick={handleCancel}
+            disabled={cancelling}
+            className={cn(
+              "text-sm text-red-500 hover:text-red-700",
+              cancelling && "opacity-50"
+            )}
+          >
+            {cancelling ? "Cancelling..." : "Cancel"}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default function StaffDashboardPage() {
+  const router = useRouter();
+  const [staffPin, setStaffPin] = useState<string | null>(null);
+  const [filter, setFilter] = useState<FilterMode>("active");
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Check auth on mount
+  useEffect(() => {
+    const pin = sessionStorage.getItem("staff-pin");
+    if (!pin) {
+      router.push("/staff");
+      return;
+    }
+    setStaffPin(pin);
+  }, [router]);
+
+  const fetchOrders = useCallback(async () => {
+    if (!staffPin) return;
+    try {
+      const url =
+        filter === "active"
+          ? "/api/orders?status=active"
+          : "/api/orders";
+      const res = await fetch(url, {
+        headers: { "x-staff-pin": staffPin },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setOrders(data);
+      }
+    } catch {
+      // silent fail on poll
+    } finally {
+      setLoading(false);
+    }
+  }, [staffPin, filter]);
+
+  // Initial fetch + polling
+  useEffect(() => {
+    if (!staffPin) return;
+    setLoading(true);
+    fetchOrders();
+    const interval = setInterval(fetchOrders, 5000);
+    return () => clearInterval(interval);
+  }, [staffPin, filter, fetchOrders]);
+
+  // Sort oldest first
+  const sortedOrders = [...orders].sort(
+    (a, b) =>
+      new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+  );
+
+  if (!staffPin) {
+    return null; // Will redirect
+  }
+
+  return (
+    <div className="flex min-h-dvh flex-col bg-surface">
+      {/* Header */}
+      <header className="sticky top-0 z-50 flex h-14 items-center justify-between border-b border-border bg-white px-4">
+        <h1 className="text-lg font-bold text-charcoal">Orders</h1>
+
+        {/* Filter toggle */}
+        <div className="flex rounded-full border border-border bg-surface p-0.5">
+          <button
+            onClick={() => setFilter("active")}
+            className={cn(
+              "rounded-full px-3 py-1 text-xs font-medium transition-colors",
+              filter === "active"
+                ? "bg-brand text-white"
+                : "text-muted"
+            )}
+          >
+            Active
+          </button>
+          <button
+            onClick={() => setFilter("all")}
+            className={cn(
+              "rounded-full px-3 py-1 text-xs font-medium transition-colors",
+              filter === "all"
+                ? "bg-brand text-white"
+                : "text-muted"
+            )}
+          >
+            All
+          </button>
+        </div>
+      </header>
+
+      <main className="mx-auto w-full max-w-lg flex-1 px-4 py-4">
+        {loading ? (
+          <div className="flex items-center justify-center py-16">
+            <LoadingSpinner size="lg" />
+          </div>
+        ) : sortedOrders.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16">
+            <p className="text-muted">No active orders</p>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-3">
+            {sortedOrders.map((order) => (
+              <OrderCard
+                key={order.id}
+                order={order}
+                staffPin={staffPin}
+                onStatusChange={fetchOrders}
+              />
+            ))}
+          </div>
+        )}
+      </main>
+    </div>
+  );
+}

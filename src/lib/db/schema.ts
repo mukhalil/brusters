@@ -1,0 +1,36 @@
+import {
+  pgTable,
+  uuid,
+  varchar,
+  text,
+  jsonb,
+  timestamp,
+  numeric,
+} from "drizzle-orm/pg-core";
+
+export const orders = pgTable("orders", {
+  id: uuid("id").defaultRandom().primaryKey(),
+
+  customerName: varchar("customer_name", { length: 100 }).notNull(),
+
+  locationType: varchar("location_type", { length: 10 }).notNull(), // 'gps' | 'car'
+  latitude: numeric("latitude", { precision: 10, scale: 7 }),
+  longitude: numeric("longitude", { precision: 10, scale: 7 }),
+  carDescription: text("car_description"),
+  additionalNotes: text("additional_notes"),
+
+  items: jsonb("items").notNull(), // OrderItem[]
+  subtotal: numeric("subtotal", { precision: 8, scale: 2 }).notNull(),
+  tax: numeric("tax", { precision: 8, scale: 2 }).notNull(),
+  total: numeric("total", { precision: 8, scale: 2 }).notNull(),
+
+  status: varchar("status", { length: 20 }).notNull().default("received"),
+
+  paymentMethod: varchar("payment_method", { length: 20 })
+    .notNull()
+    .default("mock"),
+  paymentId: varchar("payment_id", { length: 100 }),
+
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});

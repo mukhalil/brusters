@@ -1,0 +1,29 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-brand: #8B1A1A;
+  --color-brand-light: #A52A2A;
+  --color-cream: #FFF8E7;
+  --color-waffle: #D4A574;
+  --color-charcoal: #1F2937;
+  --color-muted: #6B7280;
+  --color-border: #E5E7EB;
+  --color-surface: #F9FAFB;
+  --font-sans: var(--font-geist-sans);
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background: #ffffff;
+  color: var(--color-charcoal);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Prevent iOS zoom on input focus */
+input, select, textarea {
+  font-size: 16px;
+}
