@@ -1,6 +1,6 @@
 import type { Category, MenuItem } from "@/types/menu";
 
-export const TAX_RATE = 0.06;
+export const TAX_RATE = 0.105; // La Cañada Flintridge, CA combined sales tax (10.5%)
 
 export const categories: Category[] = [
   { id: "cones", name: "Cones" },
