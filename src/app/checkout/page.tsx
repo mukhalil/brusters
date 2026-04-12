@@ -18,6 +18,30 @@ import { LoadingSpinner } from "@/components/ui/loading-spinner";
 
 type LocationMethod = "gps" | "car" | null;
 
+const CAR_COLORS = [
+  { name: "White", hex: "#FFFFFF", border: "border-gray-300" },
+  { name: "Black", hex: "#1a1a1a", border: "border-gray-700" },
+  { name: "Silver", hex: "#C0C0C0", border: "border-gray-400" },
+  { name: "Gray", hex: "#6B7280", border: "border-gray-500" },
+  { name: "Red", hex: "#DC2626", border: "border-red-400" },
+  { name: "Blue", hex: "#2563EB", border: "border-blue-400" },
+  { name: "Green", hex: "#16A34A", border: "border-green-400" },
+  { name: "Brown", hex: "#92400E", border: "border-amber-700" },
+  { name: "Gold", hex: "#D4A017", border: "border-yellow-500" },
+  { name: "Orange", hex: "#EA580C", border: "border-orange-400" },
+] as const;
+
+const CAR_TYPES = [
+  { label: "Sedan",       emoji: "🚗" },
+  { label: "SUV",         emoji: "🚙" },
+  { label: "Truck",       emoji: "🛻" },
+  { label: "Van",         emoji: "🚐" },
+  { label: "Hatchback",   emoji: "🚘" },
+  { label: "Coupe",       emoji: "🏎️" },
+  { label: "Convertible", emoji: "🚗" },
+  { label: "Crossover",   emoji: "🚙" },
+] as const;
+
 export default function CheckoutPage() {
   const router = useRouter();
   const items = useCartStore((s) => s.items);
@@ -36,7 +60,8 @@ export default function CheckoutPage() {
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const [locationMethod, setLocationMethod] = useState<LocationMethod>(null);
-  const [carDescription, setCarDescription] = useState("");
+  const [carColor, setCarColor] = useState<string | null>(null);
+  const [carType, setCarType] = useState<string | null>(null);
   const [additionalNotes, setAdditionalNotes] = useState("");
   const [summaryExpanded, setSummaryExpanded] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -47,9 +72,12 @@ export default function CheckoutPage() {
   const tax = getCartTax(items);
   const total = getCartTotal(items);
 
+  // Build car description from visual selections
+  const carDescription = [carColor, carType].filter(Boolean).join(" ");
+
   const locationReady =
     (locationMethod === "gps" && location !== null) ||
-    (locationMethod === "car" && carDescription.trim() !== "");
+    (locationMethod === "car" && carColor !== null && carType !== null);
 
   const canSubmit =
     customerName.trim() !== "" && locationReady && items.length > 0;
@@ -380,21 +408,86 @@ export default function CheckoutPage() {
             </button>
 
             {locationMethod === "car" && (
-              <div className="flex flex-col gap-3 pl-0">
-                <input
-                  type="text"
-                  value={carDescription}
-                  onChange={(e) => setCarDescription(e.target.value)}
-                  placeholder="Car make, model, and color"
-                  className="w-full rounded-xl border border-border bg-white px-4 py-3 text-charcoal placeholder:text-muted/60 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
-                />
-                <textarea
-                  value={additionalNotes}
-                  onChange={(e) => setAdditionalNotes(e.target.value)}
-                  placeholder="Additional details to help us find you"
-                  rows={2}
-                  className="w-full resize-none rounded-xl border border-border bg-white px-4 py-3 text-charcoal placeholder:text-muted/60 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
-                />
+              <div className="flex flex-col gap-4 rounded-xl border border-border bg-white p-4">
+                {/* Color picker */}
+                <div>
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">
+                    Color
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {CAR_COLORS.map((c) => (
+                      <button
+                        key={c.name}
+                        type="button"
+                        onClick={() => setCarColor(c.name)}
+                        className={cn(
+                          "flex h-11 items-center gap-2 rounded-full border px-3 text-sm font-medium transition-all",
+                          carColor === c.name
+                            ? "border-brand ring-2 ring-brand/30 bg-white"
+                            : "border-border bg-surface text-charcoal"
+                        )}
+                        aria-label={c.name}
+                      >
+                        <span
+                          className={cn(
+                            "h-5 w-5 shrink-0 rounded-full border",
+                            c.border
+                          )}
+                          style={{ backgroundColor: c.hex }}
+                        />
+                        <span className="text-xs">{c.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Vehicle type */}
+                <div>
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">
+                    Vehicle type
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {CAR_TYPES.map((t) => (
+                      <button
+                        key={t.label}
+                        type="button"
+                        onClick={() => setCarType(t.label)}
+                        className={cn(
+                          "h-11 rounded-full border px-4 text-sm font-medium transition-all flex items-center gap-1.5",
+                          carType === t.label
+                            ? "border-brand bg-brand text-white"
+                            : "border-border bg-surface text-charcoal"
+                        )}
+                      >
+                        <span>{t.emoji}</span>
+                        <span>{t.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Preview */}
+                {carColor && carType && (
+                  <div className="flex items-center gap-2 rounded-lg bg-surface px-3 py-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                    </svg>
+                    <span className="text-sm text-charcoal">
+                      {carColor} {carType}
+                    </span>
+                  </div>
+                )}
+
+                {/* Optional notes */}
+                <div>
+                  <input
+                    type="text"
+                    value={additionalNotes}
+                    onChange={(e) => setAdditionalNotes(e.target.value)}
+                    placeholder="Anything else? (e.g. &quot;near the sign&quot;)"
+                    className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-charcoal placeholder:text-muted/50 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+                  />
+                </div>
               </div>
             )}
           </div>
