@@ -17,7 +17,7 @@ export function useGeolocation() {
 
   const requestLocation = useCallback(() => {
     if (!navigator.geolocation) {
-      setState({ location: null, error: "Geolocation not supported", loading: false });
+      setState({ location: null, error: "Location is not supported by this browser.", loading: false });
       return;
     }
     setState((s) => ({ ...s, loading: true, error: null }));
@@ -29,12 +29,18 @@ export function useGeolocation() {
           loading: false,
         });
       },
-      () => {
-        setState({
-          location: null,
-          error: "Location access denied. Please describe your car instead.",
-          loading: false,
-        });
+      (err) => {
+        let message: string;
+        if (err.code === err.PERMISSION_DENIED) {
+          // iOS Safari: go to Settings → Privacy & Security → Location Services → Safari
+          message =
+            "Location access is blocked. On iPhone, go to Settings → Privacy & Security → Location Services → Safari → While Using the App, then try again.";
+        } else if (err.code === err.POSITION_UNAVAILABLE) {
+          message = "Your location couldn't be determined. Please describe your car instead.";
+        } else {
+          message = "Location request timed out. Please describe your car instead.";
+        }
+        setState({ location: null, error: message, loading: false });
       },
       { enableHighAccuracy: true, timeout: 10000 }
     );
