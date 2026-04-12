@@ -60,9 +60,9 @@ export async function POST(request: NextRequest) {
         );
       }
       const digits = phoneNumber.replace(/\D/g, "");
-      if (digits.length < 10 || digits.length > 15) {
+      if (digits.length !== 10) {
         return NextResponse.json(
-          { error: "Please provide a valid phone number" },
+          { error: "Please provide a valid 10-digit US phone number" },
           { status: 400 }
         );
       }

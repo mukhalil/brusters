@@ -80,7 +80,7 @@ export default function CheckoutPage() {
   const locationReady =
     (locationMethod === "gps" && location !== null) ||
     (locationMethod === "car" && carColor !== null && carType !== null) ||
-    (locationMethod === "counter" && phoneNumber.replace(/\D/g, "").length >= 10);
+    (locationMethod === "counter" && phoneNumber.replace(/\D/g, "").length === 10);
 
   const canSubmit =
     customerName.trim() !== "" && locationReady && items.length > 0;
@@ -506,13 +506,39 @@ export default function CheckoutPage() {
                   <input
                     id="phone-number"
                     type="tel"
+                    inputMode="tel"
+                    autoComplete="tel"
                     value={phoneNumber}
-                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    onChange={(e) => {
+                      // Auto-format as US number: (XXX) XXX-XXXX
+                      const digits = e.target.value.replace(/\D/g, "").slice(0, 10);
+                      let formatted = digits;
+                      if (digits.length > 6) {
+                        formatted = `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+                      } else if (digits.length > 3) {
+                        formatted = `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+                      } else if (digits.length > 0) {
+                        formatted = `(${digits}`;
+                      }
+                      setPhoneNumber(formatted);
+                    }}
                     placeholder="(555) 123-4567"
-                    className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-charcoal placeholder:text-muted/50 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+                    className={cn(
+                      "w-full rounded-lg border bg-surface px-3 py-2.5 text-sm text-charcoal placeholder:text-muted/50 focus:outline-none focus:ring-1",
+                      phoneNumber.length > 0 && phoneNumber.replace(/\D/g, "").length < 10
+                        ? "border-red-300 focus:border-red-400 focus:ring-red-200"
+                        : phoneNumber.replace(/\D/g, "").length === 10
+                          ? "border-green-300 focus:border-green-400 focus:ring-green-200"
+                          : "border-border focus:border-brand focus:ring-brand"
+                    )}
                   />
+                  {phoneNumber.length > 0 && phoneNumber.replace(/\D/g, "").length < 10 && (
+                    <p className="mt-1 text-xs text-red-500">
+                      Please enter a valid 10-digit US phone number
+                    </p>
+                  )}
                   <p className="mt-1.5 text-xs text-muted">
-                    We&apos;ll text you when your order is ready
+                    We&apos;ll text you when your order is ready. By providing your number, you consent to receive a one-time SMS notification about this order. Standard messaging rates may apply.
                   </p>
                 </div>
               </div>
