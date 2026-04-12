@@ -18,6 +18,7 @@ export const menuItems: MenuItem[] = [
     name: "Vanilla Waffle Cone",
     description: "Creamy vanilla ice cream in a fresh waffle cone",
     price: 4.49,
+    image: "/ice-cream-placeholder.jpg",
   },
   {
     id: "chocolate-waffle-cone",
@@ -25,6 +26,7 @@ export const menuItems: MenuItem[] = [
     name: "Chocolate Waffle Cone",
     description: "Rich chocolate ice cream in a fresh waffle cone",
     price: 4.49,
+    image: "/ice-cream-placeholder.jpg",
   },
   {
     id: "strawberry-waffle-cone",
@@ -32,6 +34,7 @@ export const menuItems: MenuItem[] = [
     name: "Strawberry Waffle Cone",
     description: "Sweet strawberry ice cream in a fresh waffle cone",
     price: 4.49,
+    image: "/ice-cream-placeholder.jpg",
   },
   {
     id: "butter-pecan-cone",
@@ -39,6 +42,7 @@ export const menuItems: MenuItem[] = [
     name: "Butter Pecan Cone",
     description: "Buttery pecan ice cream with real pecan pieces",
     price: 4.99,
+    image: "/ice-cream-placeholder.jpg",
   },
   {
     id: "mint-chip-cone",
@@ -46,6 +50,7 @@ export const menuItems: MenuItem[] = [
     name: "Mint Chocolate Chip Cone",
     description: "Cool mint ice cream with chocolate chips",
     price: 4.49,
+    image: "/ice-cream-placeholder.jpg",
   },
   {
     id: "cookie-dough-cone",
@@ -53,6 +58,7 @@ export const menuItems: MenuItem[] = [
     name: "Cookie Dough Cone",
     description: "Vanilla ice cream loaded with cookie dough chunks",
     price: 4.99,
+    image: "/ice-cream-placeholder.jpg",
   },
 
   // Cups
@@ -62,6 +68,7 @@ export const menuItems: MenuItem[] = [
     name: "Vanilla Cup",
     description: "Creamy vanilla in a cup with your choice of toppings",
     price: 3.99,
+    image: "/ice-cream-placeholder.jpg",
   },
   {
     id: "chocolate-cup",
@@ -69,6 +76,7 @@ export const menuItems: MenuItem[] = [
     name: "Chocolate Cup",
     description: "Rich chocolate ice cream served in a cup",
     price: 3.99,
+    image: "/ice-cream-placeholder.jpg",
   },
   {
     id: "twist-cup",
@@ -76,6 +84,7 @@ export const menuItems: MenuItem[] = [
     name: "Vanilla-Chocolate Twist Cup",
     description: "The best of both worlds in a cup",
     price: 3.99,
+    image: "/ice-cream-placeholder.jpg",
   },
   {
     id: "sherbet-cup",
@@ -83,6 +92,7 @@ export const menuItems: MenuItem[] = [
     name: "Rainbow Sherbet Cup",
     description: "Colorful and refreshing rainbow sherbet",
     price: 3.99,
+    image: "/ice-cream-placeholder.jpg",
   },
 
   // Sundaes
@@ -92,6 +102,7 @@ export const menuItems: MenuItem[] = [
     name: "Hot Fudge Sundae",
     description: "Vanilla ice cream topped with hot fudge, whipped cream, and a cherry",
     price: 5.99,
+    image: "/ice-cream-placeholder.jpg",
   },
   {
     id: "caramel-sundae",
@@ -99,6 +110,7 @@ export const menuItems: MenuItem[] = [
     name: "Caramel Sundae",
     description: "Vanilla ice cream with warm caramel sauce and whipped cream",
     price: 5.99,
+    image: "/ice-cream-placeholder.jpg",
   },
   {
     id: "strawberry-sundae",
@@ -106,6 +118,7 @@ export const menuItems: MenuItem[] = [
     name: "Strawberry Sundae",
     description: "Vanilla ice cream with fresh strawberry topping",
     price: 5.99,
+    image: "/ice-cream-placeholder.jpg",
   },
   {
     id: "banana-split",
@@ -113,6 +126,7 @@ export const menuItems: MenuItem[] = [
     name: "Banana Split",
     description: "Three scoops with banana, fudge, strawberry, pineapple, and whipped cream",
     price: 7.49,
+    image: "/ice-cream-placeholder.jpg",
   },
 
   // Shakes
@@ -122,6 +136,7 @@ export const menuItems: MenuItem[] = [
     name: "Vanilla Milkshake",
     description: "Thick and creamy classic vanilla milkshake",
     price: 5.49,
+    image: "/ice-cream-placeholder.jpg",
   },
   {
     id: "chocolate-shake",
@@ -129,6 +144,7 @@ export const menuItems: MenuItem[] = [
     name: "Chocolate Milkshake",
     description: "Rich and thick chocolate milkshake",
     price: 5.49,
+    image: "/ice-cream-placeholder.jpg",
   },
   {
     id: "strawberry-shake",
@@ -136,6 +152,7 @@ export const menuItems: MenuItem[] = [
     name: "Strawberry Milkshake",
     description: "Made with real strawberries",
     price: 5.49,
+    image: "/ice-cream-placeholder.jpg",
   },
   {
     id: "oreo-shake",
@@ -143,6 +160,7 @@ export const menuItems: MenuItem[] = [
     name: "Oreo Milkshake",
     description: "Vanilla shake blended with Oreo cookie pieces",
     price: 5.99,
+    image: "/ice-cream-placeholder.jpg",
   },
   {
     id: "peanut-butter-shake",
@@ -150,6 +168,7 @@ export const menuItems: MenuItem[] = [
     name: "Peanut Butter Milkshake",
     description: "Creamy peanut butter blended into a thick shake",
     price: 5.99,
+    image: "/ice-cream-placeholder.jpg",
   },
 
   // Other Treats
@@ -159,6 +178,7 @@ export const menuItems: MenuItem[] = [
     name: "Waffle Bowl Sundae",
     description: "Two scoops of your choice in a fresh waffle bowl",
     price: 6.49,
+    image: "/ice-cream-placeholder.jpg",
   },
   {
     id: "ice-cream-sandwich",
@@ -166,6 +186,7 @@ export const menuItems: MenuItem[] = [
     name: "Ice Cream Sandwich",
     description: "Vanilla ice cream between two fresh-baked cookies",
     price: 4.49,
+    image: "/ice-cream-placeholder.jpg",
   },
   {
     id: "root-beer-float",
@@ -173,6 +194,7 @@ export const menuItems: MenuItem[] = [
     name: "Root Beer Float",
     description: "Vanilla ice cream floating in ice-cold root beer",
     price: 4.99,
+    image: "/ice-cream-placeholder.jpg",
   },
 ];
 

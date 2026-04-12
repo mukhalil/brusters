@@ -9,4 +9,5 @@ export interface MenuItem {
   name: string;
   description: string;
   price: number; // in dollars, e.g. 4.49
+  image?: string; // path relative to /public, e.g. "/ice-cream-placeholder.jpg"
 }

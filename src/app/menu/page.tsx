@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, useCallback, useEffect } from "react";
+import Image from "next/image";
 import { usePostHog } from "posthog-js/react";
 import { categories, getItemsByCategory } from "@/lib/menu-data";
 import { formatCurrency, cn } from "@/lib/utils";
@@ -57,14 +58,30 @@ function MenuItemCard({ item }: { item: MenuItem }) {
   return (
     <>
       <AddedToast item={item.name} visible={toastVisible} />
-      <div className="flex items-center justify-between gap-3 rounded-xl border border-border bg-white p-4">
+      <div className="flex items-center gap-3 rounded-xl border border-border bg-white p-3">
+        {/* Item image */}
+        {item.image && (
+          <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-surface">
+            <Image
+              src={item.image}
+              alt={item.name}
+              fill
+              className="object-cover"
+              sizes="80px"
+            />
+          </div>
+        )}
+
+        {/* Text info */}
         <div className="flex min-w-0 flex-1 flex-col gap-1">
           <span className="font-medium text-charcoal">{item.name}</span>
-          <span className="text-sm text-muted">{item.description}</span>
+          <span className="text-sm text-muted line-clamp-2">{item.description}</span>
           <span className="text-brand font-semibold">
             {formatCurrency(item.price)}
           </span>
         </div>
+
+        {/* Add button */}
         <button
           onClick={handleAdd}
           className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand text-white transition-colors hover:bg-brand-light active:bg-brand-light"
