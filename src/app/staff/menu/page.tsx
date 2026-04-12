@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { formatCurrency, cn } from "@/lib/utils";
-import { categories, getItemsByCategory } from "@/lib/menu-data";
+import { categories, getItemsByCategory, flavors } from "@/lib/menu-data";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import type { MenuItem } from "@/types/menu";
 
@@ -205,6 +205,33 @@ export default function StaffMenuPage() {
           </div>
         ) : (
           <div className="flex flex-col gap-6">
+            {/* Flavors section */}
+            <section>
+              <h2 className="mb-3 text-lg font-semibold text-charcoal">
+                Flavors
+              </h2>
+              <div className="flex flex-col gap-2">
+                {flavors.map((flavor) => (
+                  <div
+                    key={flavor.id}
+                    className={cn(
+                      "flex items-center justify-between gap-3 rounded-xl border border-border bg-white p-4 transition-opacity",
+                      availability[flavor.id] === false && "opacity-60"
+                    )}
+                  >
+                    <span className="font-medium text-charcoal">{flavor.name}</span>
+                    <ToggleSwitch
+                      checked={availability[flavor.id] !== false}
+                      onChange={(val) => handleToggle(flavor.id, val)}
+                      disabled={toggling.has(flavor.id)}
+                      itemName={flavor.name}
+                    />
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* Menu items by category */}
             {categories.map((cat) => {
               const items = getItemsByCategory(cat.id);
               return (

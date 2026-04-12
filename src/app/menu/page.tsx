@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, useCallback, useEffect } from "react";
-import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { usePostHog } from "posthog-js/react";
 import { categories, getItemsByCategory } from "@/lib/menu-data";
 import { formatCurrency, cn } from "@/lib/utils";
@@ -29,14 +29,30 @@ function AddedToast({ item, visible }: { item: string; visible: boolean }) {
   );
 }
 
-function MenuItemCard({ item, available = true }: { item: MenuItem; available?: boolean }) {
+function MenuItemCard({
+  item,
+  available = true,
+}: {
+  item: MenuItem;
+  available?: boolean;
+}) {
+  const router = useRouter();
   const addItem = useCartStore((s) => s.addItem);
   const posthog = usePostHog();
   const [toastVisible, setToastVisible] = useState(false);
   const timeoutRef = useRef<ReturnType<typeof setTimeout>>(null);
 
+  const isCustomizable = item.allowFlavors || item.allowExtras;
+
   const handleAdd = useCallback(() => {
     if (!available) return;
+
+    if (isCustomizable) {
+      router.push(`/menu/customize/${item.id}`);
+      return;
+    }
+
+    // Non-customizable items go straight to cart
     addItem({
       menuItemId: item.id,
       name: item.name,
@@ -51,7 +67,7 @@ function MenuItemCard({ item, available = true }: { item: MenuItem; available?: 
     setToastVisible(true);
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     timeoutRef.current = setTimeout(() => setToastVisible(false), 1500);
-  }, [addItem, item, posthog, available]);
+  }, [addItem, item, posthog, available, isCustomizable, router]);
 
   useEffect(() => {
     return () => {
@@ -62,65 +78,75 @@ function MenuItemCard({ item, available = true }: { item: MenuItem; available?: 
   return (
     <>
       <AddedToast item={item.name} visible={toastVisible} />
-      <div className={cn(
-        "flex items-center gap-3 rounded-xl border border-border bg-white p-3",
-        !available && "opacity-50"
-      )}>
-        {/* Item image */}
-        {item.image && (
-          <div className="h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-surface">
-            <Image
-              src={item.image}
-              alt={item.name}
-              width={80}
-              height={80}
-              className="h-full w-full object-cover"
-            />
-          </div>
+      <button
+        onClick={handleAdd}
+        disabled={!available}
+        className={cn(
+          "flex w-full items-center gap-3 rounded-xl border border-border bg-white p-3 text-left transition-colors active:bg-surface",
+          !available && "opacity-50 cursor-not-allowed"
         )}
-
+      >
         {/* Text info */}
-        <div className="flex min-w-0 flex-1 flex-col gap-1">
+        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
           <span className="font-medium text-charcoal">{item.name}</span>
-          <span className="text-sm text-muted line-clamp-2">{item.description}</span>
-          {available ? (
+          <span className="text-sm text-muted line-clamp-2">
+            {item.description}
+          </span>
+          <div className="flex items-center gap-2 mt-0.5">
             <span className="text-brand font-semibold">
               {formatCurrency(item.price)}
             </span>
-          ) : (
-            <span className="text-xs font-medium text-red-500">Out of Stock</span>
-          )}
+            {item.scoops && (
+              <span className="text-xs text-muted">
+                {item.scoops} {item.scoops === 1 ? "scoop" : "scoops"}
+              </span>
+            )}
+          </div>
         </div>
 
-        {/* Add button */}
-        <button
-          onClick={handleAdd}
-          disabled={!available}
+        {/* Action indicator */}
+        <div
           className={cn(
-            "flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-colors",
+            "flex h-10 w-10 shrink-0 items-center justify-center rounded-full",
             available
-              ? "bg-brand text-white hover:bg-brand-light active:bg-brand-light"
-              : "bg-gray-200 text-gray-400 cursor-not-allowed"
+              ? "bg-brand text-white"
+              : "bg-gray-200 text-gray-400"
           )}
-          aria-label={available ? `Add ${item.name} to cart` : `${item.name} is out of stock`}
+          aria-hidden="true"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2.5}
-            aria-hidden="true"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M12 4.5v15m7.5-7.5h-15"
-            />
-          </svg>
-        </button>
-      </div>
+          {isCustomizable ? (
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2.5}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M8.25 4.5l7.5 7.5-7.5 7.5"
+              />
+            </svg>
+          ) : (
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2.5}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 4.5v15m7.5-7.5h-15"
+              />
+            </svg>
+          )}
+        </div>
+      </button>
     </>
   );
 }
@@ -128,6 +154,8 @@ function MenuItemCard({ item, available = true }: { item: MenuItem; available?: 
 export default function MenuPage() {
   const [activeCategory, setActiveCategory] = useState(categories[0].id);
   const [unavailable, setUnavailable] = useState<Record<string, boolean>>({});
+  const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
+  const pillsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetch("/api/menu/availability")
@@ -135,8 +163,6 @@ export default function MenuPage() {
       .then((data) => setUnavailable(data))
       .catch(() => {});
   }, []);
-  const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
-  const pillsRef = useRef<HTMLDivElement>(null);
 
   const handleCategoryClick = useCallback((categoryId: string) => {
     setActiveCategory(categoryId);
@@ -177,6 +203,10 @@ export default function MenuPage() {
       <PageContainer>
         {categories.map((cat) => {
           const items = getItemsByCategory(cat.id);
+          const availableItems = items.filter(
+            (item) => unavailable[item.id] !== false
+          );
+          if (availableItems.length === 0) return null;
           return (
             <section
               key={cat.id}
@@ -189,11 +219,9 @@ export default function MenuPage() {
                 {cat.name}
               </h2>
               <div className="flex flex-col gap-3">
-                {items
-                  .filter((item) => unavailable[item.id] !== false)
-                  .map((item) => (
-                    <MenuItemCard key={item.id} item={item} />
-                  ))}
+                {availableItems.map((item) => (
+                  <MenuItemCard key={item.id} item={item} />
+                ))}
               </div>
             </section>
           );

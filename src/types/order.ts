@@ -102,6 +102,9 @@ export interface OrderItem {
   name: string;
   price: number;
   quantity: number;
+  flavors?: string[];
+  extras?: string[];
+  extrasPrice?: number;
 }
 
 export interface Order {

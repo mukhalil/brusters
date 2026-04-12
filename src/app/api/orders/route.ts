@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { orders, menuItemAvailability } from "@/lib/db/schema";
-import { getMenuItemById, TAX_RATE } from "@/lib/menu-data";
+import { getMenuItemById, TAX_RATE, EXTRA_PRICE, flavors as allFlavors, extras as allExtras } from "@/lib/menu-data";
 import { getPaymentProvider } from "@/lib/payment";
 import { and, desc, eq, inArray, sql } from "drizzle-orm";
 
@@ -85,11 +85,17 @@ export async function POST(request: NextRequest) {
     }
 
     // Look up real prices from menu data — never trust client prices
+    const validFlavorNames = new Set(allFlavors.map((f) => f.name));
+    const validExtraNames = new Set(allExtras.map((e) => e.name));
+
     const verifiedItems: Array<{
       menuItemId: string;
       name: string;
       price: number;
       quantity: number;
+      flavors?: string[];
+      extras?: string[];
+      extrasPrice?: number;
     }> = [];
 
     for (const item of items) {
@@ -108,11 +114,54 @@ export async function POST(request: NextRequest) {
         );
       }
 
+      // Validate flavors if provided
+      const itemFlavors: string[] | undefined = item.flavors;
+      if (itemFlavors && Array.isArray(itemFlavors)) {
+        if (menuItem.scoops && itemFlavors.length > menuItem.scoops) {
+          return NextResponse.json(
+            { error: `Too many flavors for ${menuItem.name}. Max: ${menuItem.scoops}` },
+            { status: 400 }
+          );
+        }
+        for (const f of itemFlavors) {
+          if (!validFlavorNames.has(f)) {
+            return NextResponse.json(
+              { error: `Invalid flavor: ${f}` },
+              { status: 400 }
+            );
+          }
+        }
+      }
+
+      // Validate extras if provided
+      const itemExtras: string[] | undefined = item.extras;
+      let extrasPrice = 0;
+      if (itemExtras && Array.isArray(itemExtras)) {
+        if (itemExtras.length > 10) {
+          return NextResponse.json(
+            { error: `Too many extras for ${menuItem.name}. Max: 10` },
+            { status: 400 }
+          );
+        }
+        for (const e of itemExtras) {
+          if (!validExtraNames.has(e)) {
+            return NextResponse.json(
+              { error: `Invalid extra: ${e}` },
+              { status: 400 }
+            );
+          }
+        }
+        extrasPrice = itemExtras.length * EXTRA_PRICE;
+      }
+
       verifiedItems.push({
         menuItemId: menuItem.id,
         name: menuItem.name,
         price: menuItem.price,
         quantity: item.quantity,
+        flavors: itemFlavors,
+        extras: itemExtras,
+        extrasPrice: extrasPrice > 0 ? extrasPrice : undefined,
       });
     }
 
@@ -143,9 +192,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Calculate totals with verified prices
+    // Calculate totals with verified prices (including extras)
     const subtotal = verifiedItems.reduce(
-      (sum, item) => sum + item.price * item.quantity,
+      (sum, item) => sum + (item.price + (item.extrasPrice || 0)) * item.quantity,
       0
     );
     const tax = subtotal * TAX_RATE;

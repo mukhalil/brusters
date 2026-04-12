@@ -8,6 +8,20 @@ export interface MenuItem {
   categoryId: string;
   name: string;
   description: string;
-  price: number; // in dollars, e.g. 4.49
-  image?: string; // path relative to /public, e.g. "/ice-cream-placeholder.jpg"
+  price: number;
+  image?: string;
+  scoops?: number; // max flavors customer can pick (e.g., 2 for small cup)
+  allowFlavors?: boolean; // true → navigates to customize page
+  allowExtras?: boolean; // true → extras section on customize page
+}
+
+export interface Flavor {
+  id: string;
+  name: string;
+}
+
+export interface Extra {
+  id: string;
+  name: string;
+  price: number;
 }

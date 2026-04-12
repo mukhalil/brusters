@@ -158,7 +158,23 @@ function OrderCard({
       </div>
 
       {/* Items */}
-      <p className="mb-2 text-xs text-muted">{itemsSummary}</p>
+      <div className="mb-2 space-y-1">
+        {order.items.map((item, idx) => (
+          <div key={idx} className="text-xs text-muted">
+            <span className="font-medium text-charcoal">
+              {item.quantity}x {item.name}
+            </span>
+            {item.flavors && item.flavors.length > 0 && (
+              <span className="ml-1">— {item.flavors.join(", ")}</span>
+            )}
+            {item.extras && item.extras.length > 0 && (
+              <span className="ml-1 text-brand/70">
+                + {item.extras.join(", ")}
+              </span>
+            )}
+          </div>
+        ))}
+      </div>
 
       {/* Total */}
       <p className="mb-3 text-sm font-semibold text-charcoal">
