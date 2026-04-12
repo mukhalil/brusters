@@ -16,7 +16,7 @@ import { useGeolocation } from "@/hooks/use-geolocation";
 import { Button } from "@/components/ui/button";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 
-type LocationMethod = "gps" | "car" | null;
+type LocationMethod = "gps" | "car" | "counter" | null;
 
 const CAR_COLORS = [
   { name: "White", hex: "#FFFFFF", border: "border-gray-300" },
@@ -62,6 +62,7 @@ export default function CheckoutPage() {
   const [locationMethod, setLocationMethod] = useState<LocationMethod>(null);
   const [carColor, setCarColor] = useState<string | null>(null);
   const [carType, setCarType] = useState<string | null>(null);
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [additionalNotes, setAdditionalNotes] = useState("");
   const [summaryExpanded, setSummaryExpanded] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -77,7 +78,8 @@ export default function CheckoutPage() {
 
   const locationReady =
     (locationMethod === "gps" && location !== null) ||
-    (locationMethod === "car" && carColor !== null && carType !== null);
+    (locationMethod === "car" && carColor !== null && carType !== null) ||
+    (locationMethod === "counter" && phoneNumber.replace(/\D/g, "").length >= 10);
 
   const canSubmit =
     customerName.trim() !== "" && locationReady && items.length > 0;
@@ -94,6 +96,7 @@ export default function CheckoutPage() {
         latitude: locationMethod === "gps" ? location?.lat : undefined,
         longitude: locationMethod === "gps" ? location?.lng : undefined,
         carDescription: locationMethod === "car" ? carDescription.trim() : undefined,
+        phoneNumber: locationMethod === "counter" ? phoneNumber.trim() : undefined,
         additionalNotes: additionalNotes.trim() || undefined,
         items: items.map((i) => ({
           menuItemId: i.menuItemId,
@@ -292,7 +295,7 @@ export default function CheckoutPage() {
         {/* Location Method */}
         <section className="mb-5">
           <p className="mb-2 text-sm font-semibold text-charcoal">
-            How should we find you?
+            How would you like your order?
           </p>
 
           <div className="flex flex-col gap-3">
@@ -408,6 +411,67 @@ export default function CheckoutPage() {
                 </div>
               </div>
             </button>
+
+            {/* Counter pickup option */}
+            <button
+              onClick={() => {
+                setLocationMethod("counter");
+                posthog.capture("location_method_selected", { method: "counter" });
+              }}
+              className={cn(
+                "w-full rounded-xl border p-4 text-left transition-colors",
+                locationMethod === "counter"
+                  ? "border-brand bg-white ring-1 ring-brand"
+                  : "border-border bg-white"
+              )}
+            >
+              <div className="flex items-center gap-3">
+                <div
+                  className={cn(
+                    "flex h-5 w-5 items-center justify-center rounded-full border-2",
+                    locationMethod === "counter"
+                      ? "border-brand"
+                      : "border-muted/40"
+                  )}
+                >
+                  {locationMethod === "counter" && (
+                    <div className="h-2.5 w-2.5 rounded-full bg-brand" />
+                  )}
+                </div>
+                <div className="flex-1">
+                  <p className="font-medium text-charcoal">
+                    Counter Pickup
+                  </p>
+                  <p className="text-sm text-muted">
+                    Order ahead, skip the line
+                  </p>
+                </div>
+              </div>
+            </button>
+
+            {locationMethod === "counter" && (
+              <div className="flex flex-col gap-3 rounded-xl border border-border bg-white p-4">
+                <div>
+                  <label
+                    htmlFor="phone-number"
+                    className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-muted"
+                  >
+                    Phone number
+                  </label>
+                  <input
+                    id="phone-number"
+                    type="tel"
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    placeholder="(555) 123-4567"
+                    className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-charcoal placeholder:text-muted/50 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+                  />
+                  <p className="mt-1.5 text-xs text-muted">
+                    We&apos;ll text you when your order is ready
+                  </p>
+                </div>
+              </div>
+            )}
 
             {locationMethod === "car" && (
               <div className="flex flex-col gap-4 rounded-xl border border-border bg-white p-4">

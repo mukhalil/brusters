@@ -13,10 +13,11 @@ export const orders = pgTable("orders", {
 
   customerName: varchar("customer_name", { length: 100 }).notNull(),
 
-  locationType: varchar("location_type", { length: 10 }).notNull(), // 'gps' | 'car'
+  locationType: varchar("location_type", { length: 10 }).notNull(), // 'gps' | 'car' | 'counter'
   latitude: numeric("latitude", { precision: 10, scale: 7 }),
   longitude: numeric("longitude", { precision: 10, scale: 7 }),
   carDescription: text("car_description"),
+  phoneNumber: varchar("phone_number", { length: 20 }),
   additionalNotes: text("additional_notes"),
 
   items: jsonb("items").notNull(), // OrderItem[]

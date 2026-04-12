@@ -30,7 +30,7 @@ export default function Home() {
         {/* Tagline */}
         <div className="anim-text flex flex-col gap-2">
           <p className="text-base text-muted">
-            Order from your car and we&apos;ll bring it to you
+            Order ahead for pickup or curbside delivery
           </p>
         </div>
 

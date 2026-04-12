@@ -5,9 +5,9 @@ import { useRouter } from "next/navigation";
 import { usePostHog } from "posthog-js/react";
 import { formatCurrency, timeAgo, shortOrderId, cn } from "@/lib/utils";
 import {
-  ORDER_STATUS_FLOW,
-  NEXT_STATUS_ACTION,
   STATUS_LABELS,
+  getStatusFlow,
+  getNextStatusAction,
 } from "@/types/order";
 import type { Order, OrderStatus } from "@/types/order";
 import { Badge } from "@/components/ui/badge";
@@ -16,10 +16,11 @@ import { LoadingSpinner } from "@/components/ui/loading-spinner";
 
 type FilterMode = "active" | "all";
 
-function getNextStatus(current: OrderStatus): OrderStatus | null {
-  const idx = ORDER_STATUS_FLOW.indexOf(current);
-  if (idx === -1 || idx >= ORDER_STATUS_FLOW.length - 1) return null;
-  return ORDER_STATUS_FLOW[idx + 1];
+function getNextStatus(current: OrderStatus, locationType: string): OrderStatus | null {
+  const flow = getStatusFlow(locationType);
+  const idx = flow.indexOf(current);
+  if (idx === -1 || idx >= flow.length - 1) return null;
+  return flow[idx + 1];
 }
 
 function OrderCard({
@@ -35,8 +36,8 @@ function OrderCard({
   const [updating, setUpdating] = useState(false);
   const [cancelling, setCancelling] = useState(false);
 
-  const nextStatus = getNextStatus(order.status);
-  const actionLabel = NEXT_STATUS_ACTION[order.status];
+  const nextStatus = getNextStatus(order.status, order.locationType);
+  const actionLabel = getNextStatusAction(order.locationType)[order.status];
   const isTerminal =
     order.status === "completed" || order.status === "cancelled";
 
@@ -114,17 +115,39 @@ function OrderCard({
 
       {/* Location */}
       <div className="mb-2 text-sm text-muted">
-        {order.locationType === "gps" && order.latitude && order.longitude ? (
-          <a
-            href={`https://www.google.com/maps?q=${order.latitude},${order.longitude}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-brand underline"
-          >
-            View on Map
-          </a>
+        {order.locationType === "counter" ? (
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700">
+              Counter Pickup
+            </span>
+            {order.phoneNumber && (
+              <a
+                href={`tel:${order.phoneNumber}`}
+                className="text-brand underline"
+              >
+                {order.phoneNumber}
+              </a>
+            )}
+          </div>
+        ) : order.locationType === "gps" && order.latitude && order.longitude ? (
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">
+              Curbside
+            </span>
+            <a
+              href={`https://www.google.com/maps?q=${order.latitude},${order.longitude}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-brand underline"
+            >
+              View on Map
+            </a>
+          </div>
         ) : (
           <div>
+            <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700 mb-1">
+              Curbside
+            </span>
             {order.carDescription && <p>{order.carDescription}</p>}
             {order.additionalNotes && (
               <p className="text-xs text-muted">{order.additionalNotes}</p>

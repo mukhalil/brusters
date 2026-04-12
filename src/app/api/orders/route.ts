@@ -14,6 +14,7 @@ export async function POST(request: NextRequest) {
       latitude,
       longitude,
       carDescription,
+      phoneNumber,
       additionalNotes,
       items,
     } = body;
@@ -26,9 +27,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (locationType !== "gps" && locationType !== "car") {
+    if (!["gps", "car", "counter"].includes(locationType)) {
       return NextResponse.json(
-        { error: "locationType must be 'gps' or 'car'" },
+        { error: "locationType must be 'gps', 'car', or 'counter'" },
         { status: 400 }
       );
     }
@@ -46,6 +47,22 @@ export async function POST(request: NextRequest) {
       if (!carDescription || typeof carDescription !== "string") {
         return NextResponse.json(
           { error: "carDescription is required for car location" },
+          { status: 400 }
+        );
+      }
+    }
+
+    if (locationType === "counter") {
+      if (!phoneNumber || typeof phoneNumber !== "string") {
+        return NextResponse.json(
+          { error: "phoneNumber is required for counter pickup" },
+          { status: 400 }
+        );
+      }
+      const digits = phoneNumber.replace(/\D/g, "");
+      if (digits.length < 10 || digits.length > 15) {
+        return NextResponse.json(
+          { error: "Please provide a valid phone number" },
           { status: 400 }
         );
       }
@@ -118,6 +135,7 @@ export async function POST(request: NextRequest) {
         latitude: locationType === "gps" ? String(latitude) : null,
         longitude: locationType === "gps" ? String(longitude) : null,
         carDescription: locationType === "car" ? carDescription : null,
+        phoneNumber: phoneNumber || null,
         additionalNotes: additionalNotes || null,
         items: verifiedItems,
         subtotal: subtotal.toFixed(2),

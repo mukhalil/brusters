@@ -7,7 +7,8 @@ import { useOrderPolling } from "@/hooks/use-order-polling";
 import {
   ORDER_STATUS_FLOW,
   STATUS_LABELS,
-  STATUS_MESSAGES,
+  getStatusFlow,
+  getStatusMessages,
 } from "@/types/order";
 import type { OrderStatus } from "@/types/order";
 import { Button } from "@/components/ui/button";
@@ -55,18 +56,19 @@ function StatusIcon({
   );
 }
 
-function StatusTimeline({ currentStatus }: { currentStatus: OrderStatus }) {
-  const currentIndex = ORDER_STATUS_FLOW.indexOf(currentStatus);
+function StatusTimeline({ currentStatus, locationType }: { currentStatus: OrderStatus; locationType: string }) {
+  const flow = getStatusFlow(locationType);
+  const currentIndex = flow.indexOf(currentStatus);
 
   return (
     <div className="flex flex-col gap-0">
-      {ORDER_STATUS_FLOW.map((status, idx) => {
+      {flow.map((status, idx) => {
         let state: "completed" | "current" | "future";
         if (idx < currentIndex) state = "completed";
         else if (idx === currentIndex) state = "current";
         else state = "future";
 
-        const isLast = idx === ORDER_STATUS_FLOW.length - 1;
+        const isLast = idx === flow.length - 1;
 
         return (
           <div key={status} className="flex gap-4">
@@ -172,7 +174,7 @@ export default function OrderTrackingPage({
         {/* Main status message */}
         <div className="mb-6 text-center">
           <p className="text-xl font-bold text-charcoal">
-            {STATUS_MESSAGES[order.status]}
+            {getStatusMessages(order.locationType)[order.status]}
           </p>
         </div>
 
@@ -191,7 +193,7 @@ export default function OrderTrackingPage({
         {/* Timeline - not shown for cancelled orders */}
         {!isCancelled && (
           <div className="mb-6 rounded-xl border border-border bg-white p-5">
-            <StatusTimeline currentStatus={order.status} />
+            <StatusTimeline currentStatus={order.status} locationType={order.locationType} />
           </div>
         )}
 

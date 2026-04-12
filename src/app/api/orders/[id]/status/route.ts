@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { orders } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
-import { type OrderStatus, VALID_TRANSITIONS } from "@/types/order";
+import { type OrderStatus, getValidTransitions } from "@/types/order";
 
 export async function PATCH(
   request: NextRequest,
@@ -37,7 +37,8 @@ export async function PATCH(
 
     // Validate status transition
     const currentStatus = currentOrder.status as OrderStatus;
-    const allowedTransitions = VALID_TRANSITIONS[currentStatus];
+    const transitions = getValidTransitions(currentOrder.locationType);
+    const allowedTransitions = transitions[currentStatus];
 
     if (!allowedTransitions || !allowedTransitions.includes(newStatus)) {
       return NextResponse.json(
