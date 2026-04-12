@@ -61,13 +61,13 @@ function MenuItemCard({ item }: { item: MenuItem }) {
       <div className="flex items-center gap-3 rounded-xl border border-border bg-white p-3">
         {/* Item image */}
         {item.image && (
-          <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-surface">
+          <div className="h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-surface">
             <Image
               src={item.image}
               alt={item.name}
-              fill
-              className="object-cover"
-              sizes="80px"
+              width={80}
+              height={80}
+              className="h-full w-full object-cover"
             />
           </div>
         )}
