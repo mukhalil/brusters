@@ -189,9 +189,11 @@ export default function MenuPage() {
                 {cat.name}
               </h2>
               <div className="flex flex-col gap-3">
-                {items.map((item) => (
-                  <MenuItemCard key={item.id} item={item} available={unavailable[item.id] !== false} />
-                ))}
+                {items
+                  .filter((item) => unavailable[item.id] !== false)
+                  .map((item) => (
+                    <MenuItemCard key={item.id} item={item} />
+                  ))}
               </div>
             </section>
           );
