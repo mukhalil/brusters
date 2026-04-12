@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { useCartStore, getCartTotalItems } from "@/stores/cart-store";
 
 export function Header() {
@@ -10,21 +9,17 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 flex h-14 items-center justify-between border-b border-border bg-white px-4 relative">
-      <Link href="/menu" className="flex items-center">
-        <Image
-          src="/BrustersLogo.svg"
-          alt="Bruster's Real Ice Cream"
-          width={110}
-          height={43}
-          className="h-8 w-auto"
-          priority
-        />
-      </Link>
+      {/* Spacer to balance cart icon */}
+      <div className="min-w-[44px]" />
 
-      {/* Centered location label */}
-      <span className="absolute left-1/2 -translate-x-1/2 text-sm font-semibold text-charcoal tracking-wide pointer-events-none">
-        La Ca&ntilde;ada
-      </span>
+      {/* Centered brand name */}
+      <Link
+        href="/menu"
+        className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center leading-tight"
+      >
+        <span className="text-base font-black tracking-tight text-brand">Bruster&apos;s</span>
+        <span className="text-[11px] font-semibold tracking-wide text-charcoal">of La Ca&ntilde;ada</span>
+      </Link>
 
       <Link href="/cart" className="relative min-h-[44px] min-w-[44px] flex items-center justify-center">
         {/* Shopping bag icon */}

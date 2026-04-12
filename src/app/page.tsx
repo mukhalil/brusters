@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -18,23 +17,18 @@ export default function Home() {
       className={`flex min-h-dvh flex-col items-center justify-center bg-cream px-6 ${exiting ? "page-exit" : ""}`}
     >
       <div className="flex flex-col items-center gap-8 text-center">
-        {/* Logo */}
-        <div className="anim-logo w-72 max-w-full drop-shadow-sm">
-          <Image
-            src="/BrustersLogo.svg"
-            alt="Bruster's Real Ice Cream"
-            width={480}
-            height={188}
-            priority
-            className="w-full h-auto"
-          />
+        {/* Brand name */}
+        <div className="anim-logo flex flex-col items-center gap-1">
+          <h1 className="text-4xl font-black tracking-tight text-brand">
+            Bruster&apos;s
+          </h1>
+          <p className="text-lg font-semibold tracking-wide text-charcoal">
+            of La Ca&ntilde;ada
+          </p>
         </div>
 
-        {/* Text */}
+        {/* Tagline */}
         <div className="anim-text flex flex-col gap-2">
-          <p className="text-xl font-bold text-charcoal">
-            Welcome to Bruster&apos;s of La Ca&ntilde;ada
-          </p>
           <p className="text-base text-muted">
             Order from your car and we&apos;ll bring it to you
           </p>
@@ -48,6 +42,11 @@ export default function Home() {
           View Menu
         </button>
       </div>
+
+      {/* Footer */}
+      <p className="absolute bottom-6 text-sm text-muted/60">
+        Powered by Juni Platforms
+      </p>
     </div>
   );
 }
