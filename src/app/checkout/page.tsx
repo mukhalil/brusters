@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { usePostHog } from "posthog-js/react";
@@ -15,6 +15,10 @@ import {
 import { useGeolocation } from "@/hooks/use-geolocation";
 import { Button } from "@/components/ui/button";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import {
+  SquareCardForm,
+  type SquareCardFormHandle,
+} from "@/components/checkout/square-card-form";
 
 type LocationMethod = "gps" | "car" | "counter" | null;
 
@@ -49,6 +53,10 @@ export default function CheckoutPage() {
   const { location, error: geoError, loading: geoLoading, requestLocation } = useGeolocation();
 
   const posthog = usePostHog();
+  const isSquarePayment = process.env.NEXT_PUBLIC_PAYMENT_PROVIDER === "square";
+  const cardFormRef = useRef<SquareCardFormHandle>(null);
+  const [cardReady, setCardReady] = useState(false);
+  const [cardError, setCardError] = useState<string | null>(null);
   const [customerName, setCustomerName] = useState("");
 
   useEffect(() => {
@@ -83,7 +91,10 @@ export default function CheckoutPage() {
     (locationMethod === "counter" && phoneNumber.replace(/\D/g, "").length === 10);
 
   const canSubmit =
-    customerName.trim() !== "" && locationReady && items.length > 0;
+    customerName.trim() !== "" &&
+    locationReady &&
+    items.length > 0 &&
+    (!isSquarePayment || cardReady);
 
   async function handleSubmit() {
     if (!canSubmit) return;
@@ -91,6 +102,18 @@ export default function CheckoutPage() {
     setSubmitError(null);
 
     try {
+      // Tokenize card if Square is active
+      let paymentNonce: string | undefined;
+      if (isSquarePayment) {
+        if (!cardFormRef.current) {
+          setSubmitError("Payment form not ready. Please wait.");
+          setSubmitting(false);
+          return;
+        }
+        const tokenResult = await cardFormRef.current.tokenize();
+        paymentNonce = tokenResult.token;
+      }
+
       const body = {
         customerName: customerName.trim(),
         locationType: locationMethod,
@@ -98,6 +121,7 @@ export default function CheckoutPage() {
         longitude: locationMethod === "gps" ? location?.lng : undefined,
         carDescription: locationMethod === "car" ? carDescription.trim() : undefined,
         phoneNumber: locationMethod === "counter" ? phoneNumber.trim() : undefined,
+        paymentNonce,
         additionalNotes: additionalNotes.trim() || undefined,
         items: items.map((i) => ({
           menuItemId: i.menuItemId,
@@ -629,6 +653,25 @@ export default function CheckoutPage() {
             )}
           </div>
         </section>
+
+        {/* Payment - only shown when Square is active */}
+        {isSquarePayment && (
+          <section className="mb-5">
+            <p className="mb-2 text-sm font-semibold text-charcoal">
+              Payment
+            </p>
+            <div className="rounded-xl border border-border bg-white p-4">
+              <SquareCardForm
+                ref={cardFormRef}
+                onReady={() => setCardReady(true)}
+                onError={(msg) => setCardError(msg)}
+              />
+              {cardError && (
+                <p className="mt-2 text-sm text-red-600">{cardError}</p>
+              )}
+            </div>
+          </section>
+        )}
 
         {submitError && (
           <div className="mb-4 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-600">

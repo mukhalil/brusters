@@ -10,11 +10,13 @@
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.2",
+    "@square/web-payments-sdk-types": "^1.83.2",
     "drizzle-orm": "^0.45.2",
     "next": "16.2.3",
     "posthog-js": "^1.367.0",
     "react": "19.2.4",
     "react-dom": "19.2.4",
+    "square": "^44.0.1",
     "zustand": "^5.0.12"
   },
   "devDependencies": {

@@ -16,6 +16,7 @@ export async function POST(request: NextRequest) {
       carDescription,
       phoneNumber,
       additionalNotes,
+      paymentNonce,
       items,
     } = body;
 
@@ -68,6 +69,14 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Validate payment nonce when Square is active
+    if (process.env.PAYMENT_PROVIDER === "square" && !paymentNonce) {
+      return NextResponse.json(
+        { error: "Payment nonce is required" },
+        { status: 400 }
+      );
+    }
+
     if (!Array.isArray(items) || items.length === 0) {
       return NextResponse.json(
         { error: "items must be a non-empty array" },
@@ -117,7 +126,7 @@ export async function POST(request: NextRequest) {
 
     // Process payment
     const paymentProvider = getPaymentProvider();
-    const paymentResult = await paymentProvider.processPayment(total);
+    const paymentResult = await paymentProvider.processPayment(total, paymentNonce);
 
     if (!paymentResult.success) {
       return NextResponse.json(
@@ -141,6 +150,7 @@ export async function POST(request: NextRequest) {
         subtotal: subtotal.toFixed(2),
         tax: tax.toFixed(2),
         total: total.toFixed(2),
+        paymentMethod: process.env.PAYMENT_PROVIDER === "square" ? "square" : "mock",
         paymentId: paymentResult.paymentId,
       })
       .returning();
