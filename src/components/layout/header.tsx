@@ -9,7 +9,7 @@ export function Header() {
   const totalItems = getCartTotalItems(items);
 
   return (
-    <header className="sticky top-0 z-50 flex h-14 items-center justify-between border-b border-border bg-white px-4">
+    <header className="sticky top-0 z-50 flex h-14 items-center justify-between border-b border-border bg-white px-4 relative">
       <Link href="/menu" className="flex items-center">
         <Image
           src="/BrustersLogo.svg"
@@ -20,6 +20,11 @@ export function Header() {
           priority
         />
       </Link>
+
+      {/* Centered location label */}
+      <span className="absolute left-1/2 -translate-x-1/2 text-sm font-semibold text-charcoal tracking-wide pointer-events-none">
+        La Ca&ntilde;ada
+      </span>
 
       <Link href="/cart" className="relative min-h-[44px] min-w-[44px] flex items-center justify-center">
         {/* Shopping bag icon */}
