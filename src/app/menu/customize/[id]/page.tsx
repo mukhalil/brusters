@@ -60,8 +60,7 @@ export default function CustomizePage({
         return prev.filter((f) => f !== flavorName);
       }
       if (prev.length >= maxFlavors) {
-        // Replace the oldest selection
-        return [...prev.slice(1), flavorName];
+        return prev; // Max reached, don't add more
       }
       return [...prev, flavorName];
     });
@@ -167,6 +166,7 @@ export default function CustomizePage({
               {flavors.map((flavor) => {
                 const isSelected = selectedFlavors.includes(flavor.name);
                 const isFlavorUnavailable = unavailable[flavor.id] === false;
+                const isAtMax = selectedFlavors.length >= maxFlavors && !isSelected;
 
                 if (isFlavorUnavailable) return null;
 
@@ -174,11 +174,13 @@ export default function CustomizePage({
                   <button
                     key={flavor.id}
                     onClick={() => toggleFlavor(flavor.name)}
+                    disabled={isAtMax}
                     className={cn(
                       "flex items-center gap-3 rounded-lg border px-3 py-2.5 text-left text-sm transition-colors",
                       isSelected
                         ? "border-brand bg-brand/5 text-charcoal"
-                        : "border-border bg-white text-charcoal"
+                        : "border-border bg-white text-charcoal",
+                      isAtMax && "opacity-40 cursor-not-allowed"
                     )}
                   >
                     <div
