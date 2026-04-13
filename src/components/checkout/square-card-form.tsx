@@ -8,7 +8,7 @@ import {
   useState,
 } from "react";
 import Script from "next/script";
-import type { Card } from "@square/web-payments-sdk-types";
+import type { Card, ApplePay, Payments } from "@square/web-payments-sdk-types";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 
 export interface SquareCardFormHandle {
@@ -18,6 +18,7 @@ export interface SquareCardFormHandle {
 interface SquareCardFormProps {
   onReady?: () => void;
   onError?: (message: string) => void;
+  totalAmount: string; // e.g., "12.50" — needed for Apple Pay payment request
 }
 
 const SQUARE_SDK_URL =
@@ -28,15 +29,27 @@ const SQUARE_SDK_URL =
 export const SquareCardForm = forwardRef<
   SquareCardFormHandle,
   SquareCardFormProps
->(function SquareCardForm({ onReady, onError }, ref) {
+>(function SquareCardForm({ onReady, onError, totalAmount }, ref) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [applePayAvailable, setApplePayAvailable] = useState(false);
+  const [applePayProcessing, setApplePayProcessing] = useState(false);
   const cardRef = useRef<Card | null>(null);
+  const applePayRef = useRef<ApplePay | null>(null);
+  const paymentsRef = useRef<Payments | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const initRef = useRef(false);
+  // Store a resolve function so Apple Pay click can resolve the parent's tokenize promise
+  const applePayResolveRef = useRef<((value: { token: string }) => void) | null>(null);
+  const applePayRejectRef = useRef<((reason: Error) => void) | null>(null);
 
   useImperativeHandle(ref, () => ({
     async tokenize() {
+      // If Apple Pay is processing, wait for that result
+      if (applePayProcessing) {
+        throw new Error("Apple Pay is already processing");
+      }
+
       if (!cardRef.current) {
         throw new Error("Card form is not ready");
       }
@@ -47,7 +60,6 @@ export const SquareCardForm = forwardRef<
         return { token: result.token };
       }
 
-      // Extract error details from the result
       const tokenErrors = "errors" in result ? result.errors : undefined;
       const errors = tokenErrors
         ?.map((e: { message?: string }) => e.message)
@@ -57,7 +69,7 @@ export const SquareCardForm = forwardRef<
     },
   }));
 
-  async function initCard() {
+  async function initPayments() {
     if (initRef.current) return;
     initRef.current = true;
 
@@ -74,10 +86,31 @@ export const SquareCardForm = forwardRef<
       }
 
       const payments = await window.Square.payments(appId, locId);
+      paymentsRef.current = payments;
+
+      // Initialize card form
       const card = await payments.card();
       await card.attach("#square-card-container");
-
       cardRef.current = card;
+
+      // Try to initialize Apple Pay
+      try {
+        const paymentRequest = payments.paymentRequest({
+          countryCode: "US",
+          currencyCode: "USD",
+          total: {
+            amount: totalAmount,
+            label: "Total",
+          },
+        });
+        const applePay = await payments.applePay(paymentRequest);
+        applePayRef.current = applePay;
+        setApplePayAvailable(true);
+      } catch {
+        // Apple Pay not available on this device/browser — that's fine
+        setApplePayAvailable(false);
+      }
+
       setLoading(false);
       onReady?.();
     } catch (err) {
@@ -89,7 +122,49 @@ export const SquareCardForm = forwardRef<
     }
   }
 
-  // Clean up card element on unmount
+  async function handleApplePayClick() {
+    if (!applePayRef.current) return;
+
+    setApplePayProcessing(true);
+    try {
+      // tokenize() MUST be called immediately in the click handler per Apple Pay requirements
+      const result = await applePayRef.current.tokenize();
+
+      if (result.status === "OK" && result.token) {
+        // Resolve any pending promise from parent
+        if (applePayResolveRef.current) {
+          applePayResolveRef.current({ token: result.token });
+          applePayResolveRef.current = null;
+          applePayRejectRef.current = null;
+        }
+        return;
+      }
+
+      const tokenErrors = "errors" in result ? result.errors : undefined;
+      const errors = tokenErrors
+        ?.map((e: { message?: string }) => e.message)
+        .filter(Boolean)
+        .join("; ");
+
+      if (applePayRejectRef.current) {
+        applePayRejectRef.current(new Error(errors || "Apple Pay failed"));
+        applePayResolveRef.current = null;
+        applePayRejectRef.current = null;
+      }
+    } catch (err) {
+      if (applePayRejectRef.current) {
+        applePayRejectRef.current(
+          err instanceof Error ? err : new Error("Apple Pay failed")
+        );
+        applePayResolveRef.current = null;
+        applePayRejectRef.current = null;
+      }
+    } finally {
+      setApplePayProcessing(false);
+    }
+  }
+
+  // Clean up on unmount
   useEffect(() => {
     return () => {
       if (cardRef.current) {
@@ -101,7 +176,7 @@ export const SquareCardForm = forwardRef<
 
   return (
     <>
-      <Script src={SQUARE_SDK_URL} strategy="afterInteractive" onReady={() => { initCard(); }} />
+      <Script src={SQUARE_SDK_URL} strategy="afterInteractive" onReady={() => { initPayments(); }} />
 
       {loading && !error && (
         <div className="flex items-center justify-center gap-2 py-6 text-sm text-muted">
@@ -113,6 +188,30 @@ export const SquareCardForm = forwardRef<
       {error && (
         <div className="rounded-lg border border-red-200 bg-red-50 p-3">
           <p className="text-sm text-red-600">{error}</p>
+        </div>
+      )}
+
+      {/* Apple Pay button — only shown when available */}
+      {applePayAvailable && !loading && !error && (
+        <div className="mb-4">
+          <button
+            onClick={handleApplePayClick}
+            disabled={applePayProcessing}
+            type="button"
+            aria-label="Pay with Apple Pay"
+            style={{
+              WebkitAppearance: "-apple-pay-button" as unknown as undefined,
+              appearance: "-apple-pay-button" as unknown as undefined,
+            }}
+            className="h-12 w-full rounded-lg bg-black text-white font-medium cursor-pointer disabled:opacity-50"
+          >
+            {applePayProcessing ? "Processing..." : " Pay with Apple Pay"}
+          </button>
+          <div className="my-3 flex items-center gap-3">
+            <div className="flex-1 border-t border-border" />
+            <span className="text-xs text-muted">or pay with card</span>
+            <div className="flex-1 border-t border-border" />
+          </div>
         </div>
       )}
 

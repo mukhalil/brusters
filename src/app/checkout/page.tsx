@@ -679,6 +679,7 @@ export default function CheckoutPage() {
                 ref={cardFormRef}
                 onReady={() => setCardReady(true)}
                 onError={(msg) => setCardError(msg)}
+                totalAmount={total.toFixed(2)}
               />
               {cardError && (
                 <p className="mt-2 text-sm text-red-600">{cardError}</p>
