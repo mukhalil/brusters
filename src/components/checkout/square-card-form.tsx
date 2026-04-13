@@ -194,19 +194,18 @@ export const SquareCardForm = forwardRef<
       {/* Apple Pay button — only shown when available */}
       {applePayAvailable && !loading && !error && (
         <div className="mb-4">
-          <button
-            onClick={handleApplePayClick}
-            disabled={applePayProcessing}
-            type="button"
+          <div
+            onClick={!applePayProcessing ? handleApplePayClick : undefined}
+            role="button"
+            tabIndex={0}
             aria-label="Pay with Apple Pay"
+            onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handleApplePayClick(); } }}
             style={{
-              WebkitAppearance: "-apple-pay-button" as unknown as undefined,
-              appearance: "-apple-pay-button" as unknown as undefined,
-            }}
-            className="h-12 w-full rounded-lg bg-black text-white font-medium cursor-pointer disabled:opacity-50"
-          >
-            {applePayProcessing ? "Processing..." : " Pay with Apple Pay"}
-          </button>
+              WebkitAppearance: "-apple-pay-button",
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            } as any}
+            className={`h-12 w-full rounded-lg cursor-pointer ${applePayProcessing ? "opacity-50 pointer-events-none" : ""}`}
+          />
           <div className="my-3 flex items-center gap-3">
             <div className="flex-1 border-t border-border" />
             <span className="text-xs text-muted">or pay with card</span>
