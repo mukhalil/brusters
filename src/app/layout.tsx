@@ -9,19 +9,19 @@ const geistSans = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "Bruster's of La Cañada",
-  description: "Order your favorite Bruster's ice cream for curbside pickup. We'll bring it right to your car.",
+  title: "Park and Order: Ice Cream",
+  description: "Just park, order, and we'll bring your order to your car!",
   openGraph: {
-    title: "Bruster's of La Cañada",
-    description: "Order from your car and we'll bring it to you.",
-    siteName: "Bruster's of La Cañada",
+    title: "Park and Order: Ice Cream",
+    description: "Just park, order, and we'll bring your order to your car!",
+    siteName: "Park and Order",
     locale: "en_US",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Bruster's of La Cañada",
-    description: "Order from your car and we'll bring it to you.",
+    title: "Park and Order: Ice Cream",
+    description: "Just park, order, and we'll bring your order to your car!",
   },
 };
 
