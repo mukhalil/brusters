@@ -18,6 +18,7 @@ export interface SquareCardFormHandle {
 interface SquareCardFormProps {
   onReady?: () => void;
   onError?: (message: string) => void;
+  onApplePayToken?: (token: string) => void; // Called when Apple Pay completes — parent should submit order
   totalAmount: string; // e.g., "12.50" — needed for Apple Pay payment request
 }
 
@@ -29,7 +30,7 @@ const SQUARE_SDK_URL =
 export const SquareCardForm = forwardRef<
   SquareCardFormHandle,
   SquareCardFormProps
->(function SquareCardForm({ onReady, onError, totalAmount }, ref) {
+>(function SquareCardForm({ onReady, onError, onApplePayToken, totalAmount }, ref) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [applePayAvailable, setApplePayAvailable] = useState(false);
@@ -39,9 +40,6 @@ export const SquareCardForm = forwardRef<
   const paymentsRef = useRef<Payments | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const initRef = useRef(false);
-  // Store a resolve function so Apple Pay click can resolve the parent's tokenize promise
-  const applePayResolveRef = useRef<((value: { token: string }) => void) | null>(null);
-  const applePayRejectRef = useRef<((reason: Error) => void) | null>(null);
 
   useImperativeHandle(ref, () => ({
     async tokenize() {
@@ -131,12 +129,7 @@ export const SquareCardForm = forwardRef<
       const result = await applePayRef.current.tokenize();
 
       if (result.status === "OK" && result.token) {
-        // Resolve any pending promise from parent
-        if (applePayResolveRef.current) {
-          applePayResolveRef.current({ token: result.token });
-          applePayResolveRef.current = null;
-          applePayRejectRef.current = null;
-        }
+        onApplePayToken?.(result.token);
         return;
       }
 
@@ -145,20 +138,9 @@ export const SquareCardForm = forwardRef<
         ?.map((e: { message?: string }) => e.message)
         .filter(Boolean)
         .join("; ");
-
-      if (applePayRejectRef.current) {
-        applePayRejectRef.current(new Error(errors || "Apple Pay failed"));
-        applePayResolveRef.current = null;
-        applePayRejectRef.current = null;
-      }
+      onError?.(errors || "Apple Pay failed");
     } catch (err) {
-      if (applePayRejectRef.current) {
-        applePayRejectRef.current(
-          err instanceof Error ? err : new Error("Apple Pay failed")
-        );
-        applePayResolveRef.current = null;
-        applePayRejectRef.current = null;
-      }
+      onError?.(err instanceof Error ? err.message : "Apple Pay failed");
     } finally {
       setApplePayProcessing(false);
     }

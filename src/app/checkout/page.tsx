@@ -96,24 +96,11 @@ export default function CheckoutPage() {
     items.length > 0 &&
     (!isSquarePayment || cardReady);
 
-  async function handleSubmit() {
-    if (!canSubmit) return;
+  async function submitOrder(paymentNonce?: string) {
     setSubmitting(true);
     setSubmitError(null);
 
     try {
-      // Tokenize card if Square is active
-      let paymentNonce: string | undefined;
-      if (isSquarePayment) {
-        if (!cardFormRef.current) {
-          setSubmitError("Payment form not ready. Please wait.");
-          setSubmitting(false);
-          return;
-        }
-        const tokenResult = await cardFormRef.current.tokenize();
-        paymentNonce = tokenResult.token;
-      }
-
       const body = {
         customerName: customerName.trim(),
         locationType: locationMethod,
@@ -128,6 +115,8 @@ export default function CheckoutPage() {
           name: i.name,
           price: i.price,
           quantity: i.quantity,
+          flavors: i.flavors,
+          extras: i.extras,
         })),
       };
 
@@ -158,6 +147,35 @@ export default function CheckoutPage() {
     } finally {
       setSubmitting(false);
     }
+  }
+
+  // Called when user taps "Place Order" — tokenizes card first
+  async function handleSubmit() {
+    if (!canSubmit) return;
+
+    let paymentNonce: string | undefined;
+    if (isSquarePayment) {
+      if (!cardFormRef.current) {
+        setSubmitError("Payment form not ready. Please wait.");
+        return;
+      }
+      try {
+        const tokenResult = await cardFormRef.current.tokenize();
+        paymentNonce = tokenResult.token;
+      } catch (err) {
+        setSubmitError(
+          err instanceof Error ? err.message : "Card verification failed"
+        );
+        return;
+      }
+    }
+
+    await submitOrder(paymentNonce);
+  }
+
+  // Called when Apple Pay completes — token already obtained, submit immediately
+  async function handleApplePayToken(token: string) {
+    await submitOrder(token);
   }
 
   if (items.length === 0) {
@@ -679,6 +697,7 @@ export default function CheckoutPage() {
                 ref={cardFormRef}
                 onReady={() => setCardReady(true)}
                 onError={(msg) => setCardError(msg)}
+                onApplePayToken={handleApplePayToken}
                 totalAmount={total.toFixed(2)}
               />
               {cardError && (
