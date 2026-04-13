@@ -9,10 +9,10 @@ const geistSans = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "Park and Order: Ice Cream",
+  title: "Mobile Ice Cream Ordering",
   description: "Just park, order, and we'll bring your order to your car!",
   openGraph: {
-    title: "Park and Order: Ice Cream",
+    title: "Mobile Ice Cream Ordering",
     description: "Just park, order, and we'll bring your order to your car!",
     siteName: "Park and Order",
     locale: "en_US",
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Park and Order: Ice Cream",
+    title: "Mobile Ice Cream Ordering",
     description: "Just park, order, and we'll bring your order to your car!",
   },
 };
