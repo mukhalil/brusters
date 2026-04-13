@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { menuItemAvailability } from "@/lib/db/schema";
-import { getMenuItemById } from "@/lib/menu-data";
+import { getMenuItemById, getFlavorById } from "@/lib/menu-data";
 
 export async function PATCH(
   request: NextRequest,
@@ -15,9 +15,10 @@ export async function PATCH(
 
     const { id } = await context.params;
     const menuItem = getMenuItemById(id);
-    if (!menuItem) {
+    const flavor = getFlavorById(id);
+    if (!menuItem && !flavor) {
       return NextResponse.json(
-        { error: "Menu item not found" },
+        { error: "Menu item or flavor not found" },
         { status: 404 }
       );
     }
