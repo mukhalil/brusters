@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Terms of Service – Bruster's of La Cañada",
+  title: "Terms of Service – Park and Order by Juni Platforms",
 };
 
 export default function TermsPage() {
@@ -43,8 +43,8 @@ export default function TermsPage() {
           <h2 className="mt-6 text-lg font-bold">1. Overview</h2>
           <p>
             These Terms of Service (&quot;Terms&quot;) govern your use of the
-            online ordering service operated by Bruster&apos;s of La
-            Ca&ntilde;ada (&quot;we,&quot; &quot;us,&quot; or &quot;our&quot;).
+            online ordering service operated by Park and Order by Juni
+            Platforms (&quot;we,&quot; &quot;us,&quot; or &quot;our&quot;).
             By placing an order through our website, you agree to be bound by
             these Terms.
           </p>
@@ -53,8 +53,7 @@ export default function TermsPage() {
           <p>
             We provide a web-based ordering platform that allows you to browse
             our menu, place orders, and receive your items via curbside delivery
-            or counter pickup at our La Ca&ntilde;ada Flintridge, California
-            location.
+            or counter pickup at participating locations.
           </p>
 
           <h2 className="mt-6 text-lg font-bold">3. Orders &amp; Payment</h2>
@@ -99,8 +98,8 @@ export default function TermsPage() {
             7. Limitation of Liability
           </h2>
           <p>
-            To the fullest extent permitted by law, Bruster&apos;s of La
-            Ca&ntilde;ada shall not be liable for any indirect, incidental,
+            To the fullest extent permitted by law, Park and Order by Juni
+            Platforms shall not be liable for any indirect, incidental,
             special, or consequential damages arising from your use of our
             ordering service. Our total liability for any claim shall not exceed
             the amount you paid for the order giving rise to the claim.
@@ -132,8 +131,8 @@ export default function TermsPage() {
 
           <h2 className="mt-6 text-lg font-bold">11. Contact Us</h2>
           <p>
-            If you have questions about these Terms, please contact us at our La
-            Ca&ntilde;ada Flintridge location during business hours.
+            If you have questions about these Terms, please contact us at
+            support@juniplatforms.com.
           </p>
         </div>
 

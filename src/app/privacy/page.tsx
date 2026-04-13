@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy – Bruster's of La Cañada",
+  title: "Privacy Policy – Park and Order by Juni Platforms",
 };
 
 export default function PrivacyPage() {
@@ -42,7 +42,7 @@ export default function PrivacyPage() {
 
           <h2 className="mt-6 text-lg font-bold">1. Introduction</h2>
           <p>
-            Bruster&apos;s of La Ca&ntilde;ada (&quot;we,&quot; &quot;us,&quot;
+            Park and Order by Juni Platforms (&quot;we,&quot; &quot;us,&quot;
             or &quot;our&quot;) respects your privacy. This Privacy Policy
             explains how we collect, use, and protect your personal information
             when you use our online ordering service.
@@ -163,8 +163,8 @@ export default function PrivacyPage() {
             <li>Not be discriminated against for exercising these rights</li>
           </ul>
           <p className="mt-2">
-            To exercise these rights, please contact us at our La Ca&ntilde;ada
-            Flintridge location during business hours.
+            To exercise these rights, please contact us at
+            support@juniplatforms.com.
           </p>
 
           <h2 className="mt-6 text-lg font-bold">9. Data Security</h2>
@@ -187,8 +187,7 @@ export default function PrivacyPage() {
           <h2 className="mt-6 text-lg font-bold">11. Contact Us</h2>
           <p>
             If you have questions or concerns about this Privacy Policy or your
-            personal data, please contact us at our La Ca&ntilde;ada Flintridge
-            location during business hours.
+            personal data, please contact us at support@juniplatforms.com.
           </p>
         </div>
 
