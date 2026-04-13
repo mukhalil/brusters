@@ -3,6 +3,8 @@ import { db } from "@/lib/db";
 import { orders } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { type OrderStatus, getValidTransitions } from "@/types/order";
+import { sendSms } from "@/lib/sms";
+import { shortOrderId } from "@/lib/utils";
 
 export async function PATCH(
   request: NextRequest,
@@ -55,6 +57,23 @@ export async function PATCH(
       .set({ status: newStatus, updatedAt: new Date() })
       .where(eq(orders.id, id))
       .returning();
+
+    // Send SMS when order is ready
+    if (newStatus === "ready" && currentOrder.phoneNumber) {
+      const orderCode = shortOrderId(currentOrder.id);
+      const isCounter = currentOrder.locationType === "counter";
+
+      const message = isCounter
+        ? `Your order ${orderCode} is ready! Head to the counter to pick it up. - Park and Order`
+        : `Your order ${orderCode} is ready! A server will bring it to your car shortly. - Park and Order`;
+
+      try {
+        await sendSms(currentOrder.phoneNumber, message);
+      } catch (smsError) {
+        // Log but don't fail the status update
+        console.error("Failed to send SMS notification:", smsError);
+      }
+    }
 
     return NextResponse.json(updatedOrder);
   } catch (error) {
