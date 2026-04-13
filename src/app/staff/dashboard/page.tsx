@@ -131,7 +131,7 @@ function OrderCard({
             )}
           </div>
         ) : order.locationType === "gps" && order.latitude && order.longitude ? (
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">
               Curbside
             </span>
@@ -143,12 +143,24 @@ function OrderCard({
             >
               View on Map
             </a>
+            {order.phoneNumber && (
+              <a href={`tel:${order.phoneNumber}`} className="text-brand underline">
+                {order.phoneNumber}
+              </a>
+            )}
           </div>
         ) : (
           <div>
-            <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700 mb-1">
-              Curbside
-            </span>
+            <div className="flex flex-wrap items-center gap-2 mb-1">
+              <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">
+                Curbside
+              </span>
+              {order.phoneNumber && (
+                <a href={`tel:${order.phoneNumber}`} className="text-brand underline">
+                  {order.phoneNumber}
+                </a>
+              )}
+            </div>
             {order.carDescription && <p>{order.carDescription}</p>}
             {order.additionalNotes && (
               <p className="text-xs text-muted">{order.additionalNotes}</p>
