@@ -231,10 +231,6 @@ export default function CartPage() {
                 <span>Subtotal</span>
                 <span>{formatCurrency(subtotal)}</span>
               </div>
-              <div className="flex justify-between text-sm text-muted">
-                <span>Tax (10.5%)</span>
-                <span>{formatCurrency(tax)}</span>
-              </div>
               <div className="flex justify-between text-base font-bold text-charcoal">
                 <span>Total</span>
                 <span>{formatCurrency(total)}</span>

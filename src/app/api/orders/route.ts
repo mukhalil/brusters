@@ -53,13 +53,14 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    if (locationType === "counter") {
-      if (!phoneNumber || typeof phoneNumber !== "string") {
-        return NextResponse.json(
-          { error: "phoneNumber is required for counter pickup" },
-          { status: 400 }
-        );
-      }
+    // Phone number required for all orders
+    if (!phoneNumber || typeof phoneNumber !== "string") {
+      return NextResponse.json(
+        { error: "Phone number is required" },
+        { status: 400 }
+      );
+    }
+    {
       const digits = phoneNumber.replace(/\D/g, "");
       if (digits.length !== 10) {
         return NextResponse.json(

@@ -1,6 +1,6 @@
 import type { Category, MenuItem, Flavor, Extra } from "@/types/menu";
 
-export const TAX_RATE = 0.105; // La Cañada Flintridge, CA combined sales tax (10.5%)
+export const TAX_RATE = 0; // Ice cream is not taxed
 export const EXTRA_PRICE = 1.29;
 
 export const categories: Category[] = [
