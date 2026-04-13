@@ -164,7 +164,7 @@ export default function PrivacyPage() {
           </ul>
           <p className="mt-2">
             To exercise these rights, please contact us at
-            support@juniplatforms.com.
+            thejuni2@gmail.com.
           </p>
 
           <h2 className="mt-6 text-lg font-bold">9. Data Security</h2>
@@ -187,7 +187,7 @@ export default function PrivacyPage() {
           <h2 className="mt-6 text-lg font-bold">11. Contact Us</h2>
           <p>
             If you have questions or concerns about this Privacy Policy or your
-            personal data, please contact us at support@juniplatforms.com.
+            personal data, please contact us at thejuni2@gmail.com.
           </p>
         </div>
 

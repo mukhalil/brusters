@@ -132,7 +132,7 @@ export default function TermsPage() {
           <h2 className="mt-6 text-lg font-bold">11. Contact Us</h2>
           <p>
             If you have questions about these Terms, please contact us at
-            support@juniplatforms.com.
+            thejuni2@gmail.com.
           </p>
         </div>
 
