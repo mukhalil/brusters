@@ -38,7 +38,7 @@ export default function PrivacyPage() {
 
       <main className="mx-auto w-full max-w-2xl flex-1 px-5 py-8">
         <div className="prose prose-sm max-w-none text-charcoal">
-          <p className="text-sm text-muted">Last updated: April 12, 2026</p>
+          <p className="text-sm text-muted">Last updated: April 13, 2026</p>
 
           <h2 className="mt-6 text-lg font-bold">1. Introduction</h2>
           <p>
@@ -57,9 +57,8 @@ export default function PrivacyPage() {
               <strong>Name</strong> &mdash; to identify your order
             </li>
             <li>
-              <strong>Phone number</strong> &mdash; to notify you when your
-              counter pickup order is ready (only collected if you choose
-              counter pickup)
+              <strong>Phone number</strong> &mdash; to notify you via SMS when
+              your order is ready
             </li>
             <li>
               <strong>Location data</strong> &mdash; GPS coordinates (only if
@@ -85,7 +84,6 @@ export default function PrivacyPage() {
             <li>Process and fulfill your order</li>
             <li>
               Send you a one-time SMS notification when your order is ready
-              (counter pickup only)
             </li>
             <li>Locate your vehicle for curbside delivery</li>
             <li>Improve our service and menu offerings</li>
@@ -125,11 +123,10 @@ export default function PrivacyPage() {
 
           <h2 className="mt-6 text-lg font-bold">5. SMS Communications</h2>
           <p>
-            If you choose counter pickup and provide your phone number, you
-            consent to receive a one-time SMS message notifying you that your
-            order is ready. We will not use your phone number for marketing or
-            any other purpose. Standard messaging rates may apply. You can
-            decline SMS notifications by choosing curbside delivery instead.
+            By providing your phone number at checkout, you consent to receive
+            a one-time SMS message notifying you that your order is ready. We
+            will not use your phone number for marketing or any other purpose.
+            Standard messaging rates may apply.
           </p>
 
           <h2 className="mt-6 text-lg font-bold">6. Cookies &amp; Analytics</h2>

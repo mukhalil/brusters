@@ -38,7 +38,7 @@ export default function TermsPage() {
 
       <main className="mx-auto w-full max-w-2xl flex-1 px-5 py-8">
         <div className="prose prose-sm max-w-none text-charcoal">
-          <p className="text-sm text-muted">Last updated: April 12, 2026</p>
+          <p className="text-sm text-muted">Last updated: April 13, 2026</p>
 
           <h2 className="mt-6 text-lg font-bold">1. Overview</h2>
           <p>
@@ -82,9 +82,9 @@ export default function TermsPage() {
           <h2 className="mt-6 text-lg font-bold">5. Accuracy of Information</h2>
           <p>
             You agree to provide accurate and complete information when placing
-            an order, including your name, vehicle description or location, and
-            phone number (if applicable). We are not responsible for orders that
-            cannot be delivered due to inaccurate information.
+            an order, including your name, phone number, and vehicle description
+            or location. We are not responsible for orders that cannot be
+            delivered due to inaccurate information.
           </p>
 
           <h2 className="mt-6 text-lg font-bold">6. Acceptable Use</h2>
