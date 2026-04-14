@@ -1,13 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { orders, menuItemAvailability } from "@/lib/db/schema";
+import { orders, menuItemAvailability, storeSettings } from "@/lib/db/schema";
 import { getMenuItemById, TAX_RATE, EXTRA_PRICE, flavors as allFlavors, extras as allExtras } from "@/lib/menu-data";
 import { getPaymentProvider } from "@/lib/payment";
-import { and, desc, eq, inArray, sql } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+    // Check if store is open
+    const storeRow = await db
+      .select()
+      .from(storeSettings)
+      .where(eq(storeSettings.key, "store_open"))
+      .limit(1);
+    const storeIsOpen = storeRow.length === 0 ? true : storeRow[0].value === "true";
+    if (!storeIsOpen) {
+      return NextResponse.json(
+        { error: "Sorry, mobile ordering is currently closed. Please try again later." },
+        { status: 400 }
+      );
+    }
+
     const {
       customerName,
       locationType,
@@ -250,7 +264,7 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url);
-    const status = searchParams.get("status") || "active";
+    const status = searchParams.get("status") ?? "all";
 
     let result;
 

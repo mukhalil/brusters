@@ -37,6 +37,12 @@ export const orders = pgTable("orders", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+export const storeSettings = pgTable("store_settings", {
+  key: varchar("key", { length: 50 }).primaryKey(),
+  value: varchar("value", { length: 255 }).notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 export const menuItemAvailability = pgTable("menu_item_availability", {
   itemId: varchar("item_id", { length: 100 }).primaryKey(),
   available: boolean("available").notNull().default(true),

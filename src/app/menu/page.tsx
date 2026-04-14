@@ -154,6 +154,7 @@ function MenuItemCard({
 export default function MenuPage() {
   const [activeCategory, setActiveCategory] = useState(categories[0].id);
   const [unavailable, setUnavailable] = useState<Record<string, boolean>>({});
+  const [storeOpen, setStoreOpen] = useState(true);
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
   const pillsRef = useRef<HTMLDivElement>(null);
 
@@ -161,6 +162,10 @@ export default function MenuPage() {
     fetch("/api/menu/availability")
       .then((r) => r.json())
       .then((data) => setUnavailable(data))
+      .catch(() => {});
+    fetch("/api/store/status")
+      .then((r) => r.json())
+      .then((data) => setStoreOpen(data.isOpen))
       .catch(() => {});
   }, []);
 
@@ -199,6 +204,17 @@ export default function MenuPage() {
           ))}
         </div>
       </div>
+
+      {/* Store closed banner */}
+      {!storeOpen && (
+        <div className="mx-4 mt-3 flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3">
+          <span className="inline-flex h-2.5 w-2.5 shrink-0 rounded-full bg-red-500" />
+          <div>
+            <p className="text-sm font-semibold text-red-700">Mobile ordering is currently closed</p>
+            <p className="text-xs text-red-600/80">You can browse the menu, but mobile ordering is unavailable right now.</p>
+          </div>
+        </div>
+      )}
 
       <PageContainer>
         {categories.map((cat) => {
