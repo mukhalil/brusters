@@ -300,10 +300,10 @@ export default function StaffDashboardPage() {
     return () => clearInterval(interval);
   }, [staffPin, filter, fetchOrders]);
 
-  // Sort oldest first
+  // Sort newest first
   const sortedOrders = [...orders].sort(
     (a, b) =>
-      new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   );
 
   if (!staffPin) {
@@ -407,6 +407,9 @@ export default function StaffDashboardPage() {
           </div>
         ) : (
           <div className="flex flex-col gap-3">
+            <p className="text-xs text-muted">
+              Showing {sortedOrders.length} {sortedOrders.length === 1 ? "order" : "orders"} &middot; Most recent first
+            </p>
             {sortedOrders.map((order) => (
               <OrderCard
                 key={order.id}
