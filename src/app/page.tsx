@@ -42,10 +42,10 @@ export default function Home() {
             <div className="flex flex-col items-center gap-2">
               <span className="inline-flex items-center gap-1.5 rounded-full bg-red-100 px-4 py-1.5 text-sm font-semibold text-red-700">
                 <span className="inline-flex h-2 w-2 rounded-full bg-red-500" />
-                Currently Closed
+                Mobile Ordering Closed
               </span>
               <p className="text-sm text-muted">
-                We&apos;re not accepting orders right now. Check back soon!
+                We&apos;re not accepting mobile orders right now. Check back soon!
               </p>
             </div>
           ) : (

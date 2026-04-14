@@ -29,11 +29,16 @@ export default function CartPage() {
   const itemCount = items.reduce((sum, i) => sum + i.quantity, 0);
 
   const [unavailable, setUnavailable] = useState<Record<string, boolean>>({});
+  const [storeOpen, setStoreOpen] = useState(true);
 
   useEffect(() => {
     fetch("/api/menu/availability")
       .then((r) => r.json())
       .then((data) => setUnavailable(data))
+      .catch(() => {});
+    fetch("/api/store/status")
+      .then((r) => r.json())
+      .then((data) => setStoreOpen(data.isOpen))
       .catch(() => {});
   }, []);
 
@@ -80,6 +85,16 @@ export default function CartPage() {
           </div>
         ) : (
           <>
+            {!storeOpen && (
+              <div className="mb-3 flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3">
+                <span className="inline-flex h-2.5 w-2.5 shrink-0 rounded-full bg-red-500" />
+                <div>
+                  <p className="text-sm font-semibold text-red-700">Mobile ordering is currently closed</p>
+                  <p className="text-xs text-red-600/80">Please check back later to place your order.</p>
+                </div>
+              </div>
+            )}
+
             {unavailableInCart.length > 0 && (
               <div
                 role="alert"
@@ -239,7 +254,11 @@ export default function CartPage() {
 
             {/* Sticky checkout button */}
             <div className="sticky bottom-16 mt-6 pb-2">
-              {unavailableInCart.length > 0 ? (
+              {!storeOpen ? (
+                <Button variant="primary" size="lg" fullWidth disabled>
+                  Mobile Ordering is Closed
+                </Button>
+              ) : unavailableInCart.length > 0 ? (
                 <Button variant="primary" size="lg" fullWidth disabled>
                   Remove Unavailable Items to Continue
                 </Button>

@@ -372,7 +372,7 @@ export default function StaffDashboardPage() {
             "text-sm font-semibold",
             storeOpen ? "text-green-700" : "text-red-700"
           )}>
-            {storeOpen ? "Store is Open" : "Store is Closed"}
+            {storeOpen ? "Mobile Ordering Open" : "Mobile Ordering Closed"}
           </span>
         </div>
         <button

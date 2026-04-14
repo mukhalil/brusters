@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
     const storeIsOpen = storeRow.length === 0 ? true : storeRow[0].value === "true";
     if (!storeIsOpen) {
       return NextResponse.json(
-        { error: "Sorry, the store is currently closed. Please try again later." },
+        { error: "Sorry, mobile ordering is currently closed. Please try again later." },
         { status: 400 }
       );
     }

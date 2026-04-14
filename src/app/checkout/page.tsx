@@ -329,7 +329,7 @@ export default function CheckoutPage() {
             <div className="mb-5 flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3">
               <span className="inline-flex h-2.5 w-2.5 shrink-0 rounded-full bg-red-500" />
               <div>
-                <p className="text-sm font-semibold text-red-700">Store is currently closed</p>
+                <p className="text-sm font-semibold text-red-700">Mobile ordering is currently closed</p>
                 <p className="text-xs text-red-600/80">Orders cannot be placed right now. Please try again later.</p>
               </div>
             </div>
