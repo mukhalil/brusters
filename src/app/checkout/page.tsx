@@ -403,6 +403,55 @@ export default function CheckoutPage() {
             />
           </section>
 
+          {/* Phone Number */}
+          <section className="mb-5">
+            <label
+              htmlFor="phone-number"
+              className="mb-2 block text-sm font-semibold text-charcoal"
+            >
+              Phone number
+            </label>
+            <input
+              id="phone-number"
+              type="tel"
+              inputMode="tel"
+              autoComplete="tel"
+              aria-describedby="phone-error phone-help"
+              aria-invalid={phoneNumber.length > 0 && phoneNumber.replace(/\D/g, "").length < 10 ? "true" : undefined}
+              value={phoneNumber}
+              onChange={(e) => {
+                const digits = e.target.value.replace(/\D/g, "").slice(0, 10);
+                let formatted = digits;
+                if (digits.length > 6) {
+                  formatted = `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+                } else if (digits.length > 3) {
+                  formatted = `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+                } else if (digits.length > 0) {
+                  formatted = `(${digits}`;
+                }
+                setPhoneNumber(formatted);
+              }}
+              placeholder="(555) 123-4567"
+              className={cn(
+                "w-full rounded-xl border bg-white px-4 py-3 text-charcoal placeholder:text-muted/60 focus:outline-none focus:ring-1",
+                phoneNumber.length > 0 && phoneNumber.replace(/\D/g, "").length < 10
+                  ? "border-red-300 focus:border-red-400 focus:ring-red-200"
+                  : phoneNumber.replace(/\D/g, "").length === 10
+                    ? "border-green-300 focus:border-green-400 focus:ring-green-200"
+                    : "border-border focus:border-brand focus:ring-brand"
+              )}
+            />
+            {phoneNumber.length > 0 && phoneNumber.replace(/\D/g, "").length < 10 && (
+              <p id="phone-error" role="alert" className="mt-1 text-xs text-red-500">
+                Please enter a valid 10-digit US phone number
+              </p>
+            )}
+            <p id="phone-help" className="mt-1.5 text-xs text-muted">
+              We&apos;ll text you when your order is ready. By providing your number, you consent to receive a one-time SMS notification about this order. Standard messaging rates may apply. See our{" "}
+              <Link href="/privacy" className="text-brand underline">Privacy Policy</Link>.
+            </p>
+          </section>
+
           {/* Delivery Method */}
           <section className="mb-5">
             <fieldset>
@@ -698,56 +747,6 @@ export default function CheckoutPage() {
             </fieldset>
           </section>
 
-          {/* Phone number — shown for both delivery modes */}
-          {deliveryMode && (
-            <section className="mb-5">
-              <label
-                htmlFor="phone-number"
-                className="mb-2 block text-sm font-semibold text-charcoal"
-              >
-                Phone number
-              </label>
-              <input
-                id="phone-number"
-                type="tel"
-                inputMode="tel"
-                autoComplete="tel"
-                aria-describedby="phone-error phone-help"
-                aria-invalid={phoneNumber.length > 0 && phoneNumber.replace(/\D/g, "").length < 10 ? "true" : undefined}
-                value={phoneNumber}
-                onChange={(e) => {
-                  const digits = e.target.value.replace(/\D/g, "").slice(0, 10);
-                  let formatted = digits;
-                  if (digits.length > 6) {
-                    formatted = `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
-                  } else if (digits.length > 3) {
-                    formatted = `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
-                  } else if (digits.length > 0) {
-                    formatted = `(${digits}`;
-                  }
-                  setPhoneNumber(formatted);
-                }}
-                placeholder="(555) 123-4567"
-                className={cn(
-                  "w-full rounded-xl border bg-white px-4 py-3 text-charcoal placeholder:text-muted/60 focus:outline-none focus:ring-1",
-                  phoneNumber.length > 0 && phoneNumber.replace(/\D/g, "").length < 10
-                    ? "border-red-300 focus:border-red-400 focus:ring-red-200"
-                    : phoneNumber.replace(/\D/g, "").length === 10
-                      ? "border-green-300 focus:border-green-400 focus:ring-green-200"
-                      : "border-border focus:border-brand focus:ring-brand"
-                )}
-              />
-              {phoneNumber.length > 0 && phoneNumber.replace(/\D/g, "").length < 10 && (
-                <p id="phone-error" role="alert" className="mt-1 text-xs text-red-500">
-                  Please enter a valid 10-digit US phone number
-                </p>
-              )}
-              <p id="phone-help" className="mt-1.5 text-xs text-muted">
-                We&apos;ll text you when your order is ready. By providing your number, you consent to receive a one-time SMS notification about this order. Standard messaging rates may apply. See our{" "}
-                <Link href="/privacy" className="text-brand underline">Privacy Policy</Link>.
-              </p>
-            </section>
-          )}
         </main>
       )}
 
