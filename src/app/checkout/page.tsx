@@ -460,35 +460,28 @@ export default function CheckoutPage() {
               </legend>
 
               <div role="radiogroup" aria-label="Delivery method" className="flex flex-col gap-3">
-                {/* Curbside delivery option */}
-                <button
-                  role="radio"
-                  aria-checked={deliveryMode === "curbside"}
-                  onClick={() => {
-                    setDeliveryMode("curbside");
-                    if (locationMethod === "counter") setLocationMethod(null);
-                    posthog.capture("location_method_selected", { method: "curbside" });
-                  }}
+                {/* ── Deliver to My Car ── */}
+                <div
                   className={cn(
-                    "w-full rounded-xl border p-4 text-left transition-colors",
+                    "rounded-xl border overflow-hidden transition-colors",
                     deliveryMode === "curbside"
                       ? "border-brand bg-white ring-1 ring-brand"
                       : "border-border bg-white"
                   )}
                 >
-                  <div className="flex items-center gap-3">
-                    <div
-                      className={cn(
-                        "flex h-5 w-5 items-center justify-center rounded-full border-2",
-                        deliveryMode === "curbside"
-                          ? "border-brand"
-                          : "border-muted/40"
-                      )}
-                    >
-                      {deliveryMode === "curbside" && (
-                        <div className="h-2.5 w-2.5 rounded-full bg-brand" />
-                      )}
-                    </div>
+                  <button
+                    role="radio"
+                    aria-checked={deliveryMode === "curbside"}
+                    onClick={() => {
+                      setDeliveryMode("curbside");
+                      if (locationMethod === "counter") setLocationMethod(null);
+                      posthog.capture("location_method_selected", { method: "curbside" });
+                    }}
+                    className="flex w-full items-center gap-3 p-4 text-left"
+                  >
+                    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-green-50 text-lg" aria-hidden="true">
+                      🚗
+                    </span>
                     <div className="flex-1">
                       <p className="font-medium text-charcoal">
                         Deliver to My Car
@@ -497,53 +490,53 @@ export default function CheckoutPage() {
                         We&apos;ll bring it right to you
                       </p>
                     </div>
-                  </div>
-                </button>
+                  </button>
 
-                {/* Curbside sub-options */}
-                {deliveryMode === "curbside" && (
-                  <div className="flex flex-col gap-3 pl-4">
-                    {/* GPS sub-option */}
-                    <button
-                      onClick={() => {
-                        setLocationMethod("gps");
-                        posthog.capture("location_method_selected", { method: "gps" });
-                        if (!location && !geoLoading) {
-                          requestLocation();
-                        }
-                      }}
-                      className={cn(
-                        "w-full rounded-xl border p-4 text-left transition-colors",
-                        locationMethod === "gps"
-                          ? "border-brand bg-white ring-1 ring-brand"
-                          : "border-border bg-white"
-                      )}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div
+                  {/* Sub-options — how should we find you? */}
+                  {deliveryMode === "curbside" && (
+                    <div className="border-t border-border bg-surface/50 px-4 pb-4 pt-3">
+                      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">
+                        How should we find you?
+                      </p>
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setLocationMethod("gps");
+                            posthog.capture("location_method_selected", { method: "gps" });
+                            if (!location && !geoLoading) requestLocation();
+                          }}
                           className={cn(
-                            "flex h-5 w-5 items-center justify-center rounded-full border-2",
+                            "flex flex-1 items-center gap-2 rounded-lg border px-3 py-2.5 text-left transition-all",
                             locationMethod === "gps"
-                              ? "border-brand"
-                              : "border-muted/40"
+                              ? "border-brand bg-white ring-1 ring-brand"
+                              : "border-border bg-white"
                           )}
                         >
-                          {locationMethod === "gps" && (
-                            <div className="h-2.5 w-2.5 rounded-full bg-brand" />
+                          <span className="text-base" aria-hidden="true">📍</span>
+                          <span className="text-sm font-medium text-charcoal">Share GPS</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setLocationMethod("car");
+                            posthog.capture("location_method_selected", { method: "car" });
+                          }}
+                          className={cn(
+                            "flex flex-1 items-center gap-2 rounded-lg border px-3 py-2.5 text-left transition-all",
+                            locationMethod === "car"
+                              ? "border-brand bg-white ring-1 ring-brand"
+                              : "border-border bg-white"
                           )}
-                        </div>
-                        <div className="flex-1">
-                          <p className="font-medium text-charcoal">
-                            Share My Location
-                          </p>
-                          <p className="text-sm text-muted">
-                            We&apos;ll use GPS to find you
-                          </p>
-                        </div>
+                        >
+                          <span className="text-base" aria-hidden="true">🎨</span>
+                          <span className="text-sm font-medium text-charcoal">Describe Car</span>
+                        </button>
                       </div>
 
+                      {/* GPS status */}
                       {locationMethod === "gps" && (
-                        <div className="mt-3 pl-8">
+                        <div className="mt-3">
                           {geoLoading && (
                             <div className="flex items-center gap-2 text-sm text-muted">
                               <LoadingSpinner size="sm" />
@@ -552,20 +545,8 @@ export default function CheckoutPage() {
                           )}
                           {location && !geoLoading && (
                             <div className="flex items-center gap-2 text-sm text-green-600">
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="h-4 w-4"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                                strokeWidth={2.5}
-                                aria-hidden="true"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  d="M4.5 12.75l6 6 9-13.5"
-                                />
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5} aria-hidden="true">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                               </svg>
                               <span>Location shared</span>
                             </div>
@@ -577,48 +558,98 @@ export default function CheckoutPage() {
                           )}
                         </div>
                       )}
-                    </button>
 
-                    {/* Car description sub-option */}
-                    <button
-                      onClick={() => {
-                        setLocationMethod("car");
-                        posthog.capture("location_method_selected", { method: "car" });
-                      }}
-                      className={cn(
-                        "w-full rounded-xl border p-4 text-left transition-colors",
-                        locationMethod === "car"
-                          ? "border-brand bg-white ring-1 ring-brand"
-                          : "border-border bg-white"
+                      {/* Car description form */}
+                      {locationMethod === "car" && (
+                        <div className="mt-3 flex flex-col gap-4">
+                          {/* Color picker */}
+                          <div>
+                            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">
+                              Color
+                            </p>
+                            <div className="flex flex-wrap gap-2">
+                              {CAR_COLORS.map((c) => (
+                                <button
+                                  key={c.name}
+                                  type="button"
+                                  onClick={() => setCarColor(c.name)}
+                                  className={cn(
+                                    "flex h-11 items-center gap-2 rounded-full border px-3 text-sm font-medium transition-all",
+                                    carColor === c.name
+                                      ? "border-brand ring-2 ring-brand/30 bg-white"
+                                      : "border-border bg-white text-charcoal"
+                                  )}
+                                  aria-label={c.name}
+                                >
+                                  <span
+                                    className={cn(
+                                      "h-5 w-5 shrink-0 rounded-full border",
+                                      c.border
+                                    )}
+                                    style={{ backgroundColor: c.hex }}
+                                  />
+                                  <span className="text-xs">{c.name}</span>
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Vehicle type */}
+                          <div>
+                            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">
+                              Vehicle type
+                            </p>
+                            <div className="flex flex-wrap gap-2">
+                              {CAR_TYPES.map((t) => (
+                                <button
+                                  key={t.label}
+                                  type="button"
+                                  onClick={() => setCarType(t.label)}
+                                  className={cn(
+                                    "h-11 rounded-full border px-4 text-sm font-medium transition-all flex items-center gap-1.5",
+                                    carType === t.label
+                                      ? "border-brand bg-brand text-white"
+                                      : "border-border bg-white text-charcoal"
+                                  )}
+                                >
+                                  <span>{t.emoji}</span>
+                                  <span>{t.label}</span>
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Preview */}
+                          {carColor && carType && (
+                            <div className="flex items-center gap-2 rounded-lg bg-white border border-border px-3 py-2">
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                              </svg>
+                              <span className="text-sm text-charcoal">
+                                {carColor} {carType}
+                              </span>
+                            </div>
+                          )}
+
+                          {/* Optional notes */}
+                          <div>
+                            <label htmlFor="additional-notes" className="sr-only">Additional notes (optional)</label>
+                            <input
+                              id="additional-notes"
+                              type="text"
+                              value={additionalNotes}
+                              onChange={(e) => setAdditionalNotes(e.target.value)}
+                              placeholder="Anything else? (e.g. &quot;near the sign&quot;)"
+                              className="w-full rounded-lg border border-border bg-white px-3 py-2.5 text-sm text-charcoal placeholder:text-muted/50 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+                            />
+                          </div>
+                        </div>
                       )}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div
-                          className={cn(
-                            "flex h-5 w-5 items-center justify-center rounded-full border-2",
-                            locationMethod === "car"
-                              ? "border-brand"
-                              : "border-muted/40"
-                          )}
-                        >
-                          {locationMethod === "car" && (
-                            <div className="h-2.5 w-2.5 rounded-full bg-brand" />
-                          )}
-                        </div>
-                        <div className="flex-1">
-                          <p className="font-medium text-charcoal">
-                            Describe Your Car
-                          </p>
-                          <p className="text-sm text-muted">
-                            Tell us what to look for
-                          </p>
-                        </div>
-                      </div>
-                    </button>
-                  </div>
-                )}
+                    </div>
+                  )}
+                </div>
 
-                {/* Counter pickup option */}
+                {/* ── Counter Pickup ── */}
                 <button
                   role="radio"
                   aria-checked={deliveryMode === "counter"}
@@ -635,18 +666,9 @@ export default function CheckoutPage() {
                   )}
                 >
                   <div className="flex items-center gap-3">
-                    <div
-                      className={cn(
-                        "flex h-5 w-5 items-center justify-center rounded-full border-2",
-                        deliveryMode === "counter"
-                          ? "border-brand"
-                          : "border-muted/40"
-                      )}
-                    >
-                      {deliveryMode === "counter" && (
-                        <div className="h-2.5 w-2.5 rounded-full bg-brand" />
-                      )}
-                    </div>
+                    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-50 text-lg" aria-hidden="true">
+                      🏪
+                    </span>
                     <div className="flex-1">
                       <p className="font-medium text-charcoal">
                         Counter Pickup
@@ -657,92 +679,6 @@ export default function CheckoutPage() {
                     </div>
                   </div>
                 </button>
-
-                {locationMethod === "car" && (
-                  <div className="flex flex-col gap-4 rounded-xl border border-border bg-white p-4">
-                    {/* Color picker */}
-                    <div>
-                      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">
-                        Color
-                      </p>
-                      <div className="flex flex-wrap gap-2">
-                        {CAR_COLORS.map((c) => (
-                          <button
-                            key={c.name}
-                            type="button"
-                            onClick={() => setCarColor(c.name)}
-                            className={cn(
-                              "flex h-11 items-center gap-2 rounded-full border px-3 text-sm font-medium transition-all",
-                              carColor === c.name
-                                ? "border-brand ring-2 ring-brand/30 bg-white"
-                                : "border-border bg-surface text-charcoal"
-                            )}
-                            aria-label={c.name}
-                          >
-                            <span
-                              className={cn(
-                                "h-5 w-5 shrink-0 rounded-full border",
-                                c.border
-                              )}
-                              style={{ backgroundColor: c.hex }}
-                            />
-                            <span className="text-xs">{c.name}</span>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Vehicle type */}
-                    <div>
-                      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">
-                        Vehicle type
-                      </p>
-                      <div className="flex flex-wrap gap-2">
-                        {CAR_TYPES.map((t) => (
-                          <button
-                            key={t.label}
-                            type="button"
-                            onClick={() => setCarType(t.label)}
-                            className={cn(
-                              "h-11 rounded-full border px-4 text-sm font-medium transition-all flex items-center gap-1.5",
-                              carType === t.label
-                                ? "border-brand bg-brand text-white"
-                                : "border-border bg-surface text-charcoal"
-                            )}
-                          >
-                            <span>{t.emoji}</span>
-                            <span>{t.label}</span>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Preview */}
-                    {carColor && carType && (
-                      <div className="flex items-center gap-2 rounded-lg bg-surface px-3 py-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                        </svg>
-                        <span className="text-sm text-charcoal">
-                          {carColor} {carType}
-                        </span>
-                      </div>
-                    )}
-
-                    {/* Optional notes */}
-                    <div>
-                      <label htmlFor="additional-notes" className="sr-only">Additional notes (optional)</label>
-                      <input
-                        id="additional-notes"
-                        type="text"
-                        value={additionalNotes}
-                        onChange={(e) => setAdditionalNotes(e.target.value)}
-                        placeholder="Anything else? (e.g. &quot;near the sign&quot;)"
-                        className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-charcoal placeholder:text-muted/50 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
-                      />
-                    </div>
-                  </div>
-                )}
               </div>
             </fieldset>
           </section>
