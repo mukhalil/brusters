@@ -94,19 +94,24 @@ function OrderCard({
 
   return (
     <div className="rounded-xl border border-border bg-white p-4">
-      {/* Header row */}
-      <div className="mb-2 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <span className="font-bold text-charcoal">
+      {/* Header row with prominent order code */}
+      <div className="mb-3 flex items-start justify-between gap-3">
+        <div className="flex flex-col gap-0.5">
+          <p className="text-[10px] font-semibold uppercase tracking-widest text-muted">
+            Order Code
+          </p>
+          <p className="text-4xl font-black leading-none tracking-tight text-brand">
             {shortOrderId(order.id)}
-          </span>
+          </p>
+        </div>
+        <div className="flex flex-col items-end gap-1">
+          <Badge variant={order.status}>
+            {STATUS_LABELS[order.status]}
+          </Badge>
           <span className="text-xs text-muted">
             {timeAgo(order.createdAt)}
           </span>
         </div>
-        <Badge variant={order.status}>
-          {STATUS_LABELS[order.status]}
-        </Badge>
       </div>
 
       {/* Customer name */}
