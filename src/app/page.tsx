@@ -1,12 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function Home() {
   const router = useRouter();
   const [exiting, setExiting] = useState(false);
+  const [storeOpen, setStoreOpen] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    fetch("/api/store/status")
+      .then((r) => r.json())
+      .then((data) => setStoreOpen(data.isOpen))
+      .catch(() => setStoreOpen(true)); // fail-open
+  }, []);
 
   function handleViewMenu() {
     setExiting(true);
@@ -28,11 +36,23 @@ export default function Home() {
           </p>
         </div>
 
-        {/* Tagline */}
+        {/* Tagline or closed notice */}
         <div className="anim-text flex flex-col gap-2">
-          <p className="text-base text-muted">
-            Order ahead for pickup or curbside delivery
-          </p>
+          {storeOpen === false ? (
+            <div className="flex flex-col items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-red-100 px-4 py-1.5 text-sm font-semibold text-red-700">
+                <span className="inline-flex h-2 w-2 rounded-full bg-red-500" />
+                Currently Closed
+              </span>
+              <p className="text-sm text-muted">
+                We&apos;re not accepting orders right now. Check back soon!
+              </p>
+            </div>
+          ) : (
+            <p className="text-base text-muted">
+              Order ahead for pickup or curbside delivery
+            </p>
+          )}
         </div>
 
         {/* CTA */}

@@ -228,6 +228,8 @@ export default function StaffDashboardPage() {
   const [filter, setFilter] = useState<FilterMode>("active");
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const [storeOpen, setStoreOpen] = useState(true);
+  const [togglingStore, setTogglingStore] = useState(false);
 
   // Check auth on mount
   useEffect(() => {
@@ -238,6 +240,35 @@ export default function StaffDashboardPage() {
     }
     setStaffPin(pin);
   }, [router]);
+
+  // Fetch store status
+  useEffect(() => {
+    fetch("/api/store/status")
+      .then((r) => r.json())
+      .then((data) => setStoreOpen(data.isOpen))
+      .catch(() => {});
+  }, []);
+
+  async function toggleStore() {
+    if (!staffPin) return;
+    setTogglingStore(true);
+    try {
+      const res = await fetch("/api/store/status", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "x-staff-pin": staffPin,
+        },
+        body: JSON.stringify({ isOpen: !storeOpen }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setStoreOpen(data.isOpen);
+      }
+    } finally {
+      setTogglingStore(false);
+    }
+  }
 
   const fetchOrders = useCallback(async () => {
     if (!staffPin) return;
@@ -324,6 +355,46 @@ export default function StaffDashboardPage() {
           </button>
         </div>
       </header>
+
+      {/* Store open/closed toggle */}
+      <div className={cn(
+        "flex items-center justify-between px-4 py-3 border-b",
+        storeOpen
+          ? "bg-green-50 border-green-200"
+          : "bg-red-50 border-red-200"
+      )}>
+        <div className="flex items-center gap-2">
+          <span className={cn(
+            "inline-flex h-2.5 w-2.5 rounded-full",
+            storeOpen ? "bg-green-500" : "bg-red-500"
+          )} />
+          <span className={cn(
+            "text-sm font-semibold",
+            storeOpen ? "text-green-700" : "text-red-700"
+          )}>
+            {storeOpen ? "Store is Open" : "Store is Closed"}
+          </span>
+        </div>
+        <button
+          onClick={toggleStore}
+          disabled={togglingStore}
+          className={cn(
+            "relative inline-flex h-7 w-12 shrink-0 cursor-pointer items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1",
+            storeOpen
+              ? "bg-green-500 focus:ring-green-400"
+              : "bg-red-400 focus:ring-red-300",
+            togglingStore && "opacity-60 cursor-not-allowed"
+          )}
+          role="switch"
+          aria-checked={storeOpen}
+          aria-label={storeOpen ? "Close store" : "Open store"}
+        >
+          <span className={cn(
+            "inline-block h-5 w-5 rounded-full bg-white shadow transition-transform duration-200",
+            storeOpen ? "translate-x-6" : "translate-x-1"
+          )} />
+        </button>
+      </div>
 
       <main className="mx-auto w-full max-w-lg flex-1 px-4 py-4">
         {loading ? (

@@ -70,6 +70,7 @@ export default function CheckoutPage() {
   const [summaryExpanded, setSummaryExpanded] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [storeOpen, setStoreOpen] = useState(true);
 
   const totalItems = getCartTotalItems(items);
   const subtotal = getCartSubtotal(items);
@@ -82,6 +83,10 @@ export default function CheckoutPage() {
         cartTotal: total,
       });
     }
+    fetch("/api/store/status")
+      .then((r) => r.json())
+      .then((data) => setStoreOpen(data.isOpen))
+      .catch(() => {});
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Build car description from visual selections
@@ -93,8 +98,9 @@ export default function CheckoutPage() {
     (locationMethod === "car" && carColor !== null && carType !== null && phoneReady) ||
     (locationMethod === "counter" && phoneReady);
 
-  // Step 1 gating: name + delivery + phone must be complete
+  // Step 1 gating: name + delivery + phone must be complete + store open
   const canProceedToPayment =
+    storeOpen &&
     customerName.trim() !== "" &&
     locationReady &&
     items.length > 0;
@@ -318,6 +324,17 @@ export default function CheckoutPage() {
       {/* ── STEP 1 ── */}
       {step === 1 && (
         <main className="mx-auto w-full max-w-lg flex-1 px-4 py-4 pb-32">
+          {/* Store closed banner */}
+          {!storeOpen && (
+            <div className="mb-5 flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3">
+              <span className="inline-flex h-2.5 w-2.5 shrink-0 rounded-full bg-red-500" />
+              <div>
+                <p className="text-sm font-semibold text-red-700">Store is currently closed</p>
+                <p className="text-xs text-red-600/80">Orders cannot be placed right now. Please try again later.</p>
+              </div>
+            </div>
+          )}
+
           {/* Order Summary */}
           <section className="mb-5">
             <button
