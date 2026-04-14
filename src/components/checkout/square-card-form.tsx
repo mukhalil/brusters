@@ -104,8 +104,9 @@ export const SquareCardForm = forwardRef<
         const applePay = await payments.applePay(paymentRequest);
         applePayRef.current = applePay;
         setApplePayAvailable(true);
-      } catch {
-        // Apple Pay not available on this device/browser — that's fine
+      } catch (apErr) {
+        // Apple Pay not available — log for debugging
+        console.warn("[Apple Pay] Not available:", apErr instanceof Error ? apErr.message : apErr);
         setApplePayAvailable(false);
       }
 
