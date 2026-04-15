@@ -49,19 +49,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (locationType === "gps") {
-      if (latitude == null || longitude == null) {
-        return NextResponse.json(
-          { error: "latitude and longitude are required for GPS location" },
-          { status: 400 }
-        );
-      }
-    }
-
-    if (locationType === "car") {
+    // Car description required for both gps and car curbside orders
+    if (locationType === "gps" || locationType === "car") {
       if (!carDescription || typeof carDescription !== "string") {
         return NextResponse.json(
-          { error: "carDescription is required for car location" },
+          { error: "Vehicle description is required for curbside orders" },
           { status: 400 }
         );
       }
@@ -233,8 +225,8 @@ export async function POST(request: NextRequest) {
         customerName,
         locationType,
         latitude: locationType === "gps" ? String(latitude) : null,
-        longitude: locationType === "gps" ? String(longitude) : null,
-        carDescription: locationType === "car" ? carDescription : null,
+        longitude: locationType === "gps" && longitude ? String(longitude) : null,
+        carDescription: locationType !== "counter" ? carDescription : null,
         phoneNumber: phoneNumber || null,
         additionalNotes: additionalNotes || null,
         items: verifiedItems,

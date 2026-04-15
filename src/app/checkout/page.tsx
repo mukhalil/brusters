@@ -93,9 +93,9 @@ export default function CheckoutPage() {
   const carDescription = [carColor, carType].filter(Boolean).join(" ");
 
   const phoneReady = phoneNumber.replace(/\D/g, "").length === 10;
+  const carReady = carColor !== null && carType !== null;
   const locationReady =
-    (locationMethod === "gps" && location !== null && phoneReady) ||
-    (locationMethod === "car" && carColor !== null && carType !== null && phoneReady) ||
+    (deliveryMode === "curbside" && carReady && phoneReady) ||
     (locationMethod === "counter" && phoneReady);
 
   // Step 1 gating: name + delivery + phone must be complete + store open
@@ -113,12 +113,14 @@ export default function CheckoutPage() {
     setSubmitError(null);
 
     try {
+      // For curbside, send car description always; send GPS coords if shared
+      const isCurbside = deliveryMode === "curbside";
       const body = {
         customerName: customerName.trim(),
-        locationType: locationMethod,
-        latitude: locationMethod === "gps" ? location?.lat : undefined,
-        longitude: locationMethod === "gps" ? location?.lng : undefined,
-        carDescription: locationMethod === "car" ? carDescription.trim() : undefined,
+        locationType: location ? "gps" : (isCurbside ? "car" : "counter"),
+        latitude: location?.lat ?? undefined,
+        longitude: location?.lng ?? undefined,
+        carDescription: isCurbside ? carDescription.trim() : undefined,
         phoneNumber: phoneNumber.trim() || undefined,
         paymentNonce,
         additionalNotes: additionalNotes.trim() || undefined,
@@ -203,8 +205,11 @@ export default function CheckoutPage() {
   // Human-readable delivery summary for Step 2 recap
   function deliverySummary() {
     if (locationMethod === "counter") return "Counter Pickup";
-    if (locationMethod === "gps") return "Curbside · GPS location";
-    if (locationMethod === "car") return `Curbside · ${carDescription}`;
+    if (deliveryMode === "curbside") {
+      const parts = [`Curbside · ${carDescription}`];
+      if (location) parts.push("+ GPS");
+      return parts.join(" ");
+    }
     return "";
   }
 
@@ -491,7 +496,7 @@ export default function CheckoutPage() {
                     aria-checked={deliveryMode === "curbside"}
                     onClick={() => {
                       setDeliveryMode("curbside");
-                      if (locationMethod === "counter") setLocationMethod(null);
+                      setLocationMethod("car");
                       posthog.capture("location_method_selected", { method: "curbside" });
                     }}
                     className="flex w-full items-center gap-3 p-4 text-left"
@@ -509,159 +514,131 @@ export default function CheckoutPage() {
                     </div>
                   </button>
 
-                  {/* Sub-options — how should we find you? */}
+                  {/* Vehicle info + optional GPS — shown when curbside selected */}
                   {deliveryMode === "curbside" && (
-                    <div className="border-t border-border bg-surface/50 px-4 pb-4 pt-3">
-                      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">
-                        How should we find you?
-                      </p>
-                      <div className="flex gap-2">
+                    <div className="border-t border-border bg-surface/50 px-4 pb-4 pt-3 flex flex-col gap-4">
+                      {/* Car color picker */}
+                      <div>
+                        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">
+                          Vehicle color
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          {CAR_COLORS.map((c) => (
+                            <button
+                              key={c.name}
+                              type="button"
+                              onClick={() => setCarColor(c.name)}
+                              className={cn(
+                                "flex h-11 items-center gap-2 rounded-full border px-3 text-sm font-medium transition-all",
+                                carColor === c.name
+                                  ? "border-brand ring-2 ring-brand/30 bg-white"
+                                  : "border-border bg-white text-charcoal"
+                              )}
+                              aria-label={c.name}
+                            >
+                              <span
+                                className={cn(
+                                  "h-5 w-5 shrink-0 rounded-full border",
+                                  c.border
+                                )}
+                                style={{ backgroundColor: c.hex }}
+                              />
+                              <span className="text-xs">{c.name}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Vehicle type picker */}
+                      <div>
+                        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">
+                          Vehicle type
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          {CAR_TYPES.map((t) => (
+                            <button
+                              key={t.label}
+                              type="button"
+                              onClick={() => setCarType(t.label)}
+                              className={cn(
+                                "h-11 rounded-full border px-4 text-sm font-medium transition-all flex items-center gap-1.5",
+                                carType === t.label
+                                  ? "border-brand bg-brand text-white"
+                                  : "border-border bg-white text-charcoal"
+                              )}
+                            >
+                              <span>{t.emoji}</span>
+                              <span>{t.label}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Vehicle preview */}
+                      {carColor && carType && (
+                        <div className="flex items-center gap-2 rounded-lg bg-white border border-border px-3 py-2">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                          </svg>
+                          <span className="text-sm text-charcoal">
+                            {carColor} {carType}
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Optional GPS share */}
+                      <div>
                         <button
                           type="button"
                           onClick={() => {
-                            setLocationMethod("gps");
-                            posthog.capture("location_method_selected", { method: "gps" });
-                            if (!location && !geoLoading) requestLocation();
+                            if (!location && !geoLoading) {
+                              requestLocation();
+                              posthog.capture("location_method_selected", { method: "gps" });
+                            }
                           }}
                           className={cn(
-                            "flex flex-1 items-center gap-2 rounded-lg border px-3 py-2.5 text-left transition-all",
-                            locationMethod === "gps"
-                              ? "border-brand bg-white ring-1 ring-brand"
+                            "flex w-full items-center gap-3 rounded-lg border px-3 py-2.5 text-left transition-all",
+                            location
+                              ? "border-green-300 bg-green-50"
                               : "border-border bg-white"
                           )}
                         >
                           <span className="text-base" aria-hidden="true">📍</span>
-                          <span className="text-sm font-medium text-charcoal">Share GPS</span>
+                          <div className="flex-1">
+                            {geoLoading ? (
+                              <div className="flex items-center gap-2 text-sm text-muted">
+                                <LoadingSpinner size="sm" />
+                                <span>Getting your location...</span>
+                              </div>
+                            ) : location ? (
+                              <span className="text-sm font-medium text-green-700">GPS location shared</span>
+                            ) : (
+                              <div>
+                                <span className="text-sm font-medium text-charcoal">Share GPS location</span>
+                                <span className="ml-1 text-xs text-muted">(optional)</span>
+                              </div>
+                            )}
+                          </div>
                         </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setLocationMethod("car");
-                            posthog.capture("location_method_selected", { method: "car" });
-                          }}
-                          className={cn(
-                            "flex flex-1 items-center gap-2 rounded-lg border px-3 py-2.5 text-left transition-all",
-                            locationMethod === "car"
-                              ? "border-brand bg-white ring-1 ring-brand"
-                              : "border-border bg-white"
-                          )}
-                        >
-                          <span className="text-base" aria-hidden="true">🎨</span>
-                          <span className="text-sm font-medium text-charcoal">Describe Car</span>
-                        </button>
+                        {geoError && !geoLoading && (
+                          <div className="mt-2 rounded-lg border border-red-200 bg-red-50 p-3">
+                            <p className="text-sm text-red-600 leading-snug">{geoError}</p>
+                          </div>
+                        )}
                       </div>
 
-                      {/* GPS status */}
-                      {locationMethod === "gps" && (
-                        <div className="mt-3">
-                          {geoLoading && (
-                            <div className="flex items-center gap-2 text-sm text-muted">
-                              <LoadingSpinner size="sm" />
-                              <span>Getting your location...</span>
-                            </div>
-                          )}
-                          {location && !geoLoading && (
-                            <div className="flex items-center gap-2 text-sm text-green-600">
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5} aria-hidden="true">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                              </svg>
-                              <span>Location shared</span>
-                            </div>
-                          )}
-                          {geoError && !geoLoading && (
-                            <div className="rounded-lg border border-red-200 bg-red-50 p-3">
-                              <p className="text-sm text-red-600 leading-snug">{geoError}</p>
-                            </div>
-                          )}
-                        </div>
-                      )}
-
-                      {/* Car description form */}
-                      {locationMethod === "car" && (
-                        <div className="mt-3 flex flex-col gap-4">
-                          {/* Color picker */}
-                          <div>
-                            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">
-                              Color
-                            </p>
-                            <div className="flex flex-wrap gap-2">
-                              {CAR_COLORS.map((c) => (
-                                <button
-                                  key={c.name}
-                                  type="button"
-                                  onClick={() => setCarColor(c.name)}
-                                  className={cn(
-                                    "flex h-11 items-center gap-2 rounded-full border px-3 text-sm font-medium transition-all",
-                                    carColor === c.name
-                                      ? "border-brand ring-2 ring-brand/30 bg-white"
-                                      : "border-border bg-white text-charcoal"
-                                  )}
-                                  aria-label={c.name}
-                                >
-                                  <span
-                                    className={cn(
-                                      "h-5 w-5 shrink-0 rounded-full border",
-                                      c.border
-                                    )}
-                                    style={{ backgroundColor: c.hex }}
-                                  />
-                                  <span className="text-xs">{c.name}</span>
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-
-                          {/* Vehicle type */}
-                          <div>
-                            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">
-                              Vehicle type
-                            </p>
-                            <div className="flex flex-wrap gap-2">
-                              {CAR_TYPES.map((t) => (
-                                <button
-                                  key={t.label}
-                                  type="button"
-                                  onClick={() => setCarType(t.label)}
-                                  className={cn(
-                                    "h-11 rounded-full border px-4 text-sm font-medium transition-all flex items-center gap-1.5",
-                                    carType === t.label
-                                      ? "border-brand bg-brand text-white"
-                                      : "border-border bg-white text-charcoal"
-                                  )}
-                                >
-                                  <span>{t.emoji}</span>
-                                  <span>{t.label}</span>
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-
-                          {/* Preview */}
-                          {carColor && carType && (
-                            <div className="flex items-center gap-2 rounded-lg bg-white border border-border px-3 py-2">
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                              </svg>
-                              <span className="text-sm text-charcoal">
-                                {carColor} {carType}
-                              </span>
-                            </div>
-                          )}
-
-                          {/* Optional notes */}
-                          <div>
-                            <label htmlFor="additional-notes" className="sr-only">Additional notes (optional)</label>
-                            <input
-                              id="additional-notes"
-                              type="text"
-                              value={additionalNotes}
-                              onChange={(e) => setAdditionalNotes(e.target.value)}
-                              placeholder="Anything else? (e.g. &quot;near the sign&quot;)"
-                              className="w-full rounded-lg border border-border bg-white px-3 py-2.5 text-sm text-charcoal placeholder:text-muted/50 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
-                            />
-                          </div>
-                        </div>
-                      )}
+                      {/* Optional notes */}
+                      <div>
+                        <label htmlFor="additional-notes" className="sr-only">Additional notes (optional)</label>
+                        <input
+                          id="additional-notes"
+                          type="text"
+                          value={additionalNotes}
+                          onChange={(e) => setAdditionalNotes(e.target.value)}
+                          placeholder="Anything else? (e.g. &quot;near the sign&quot;)"
+                          className="w-full rounded-lg border border-border bg-white px-3 py-2.5 text-sm text-charcoal placeholder:text-muted/50 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+                        />
+                      </div>
                     </div>
                   )}
                 </div>
