@@ -238,6 +238,19 @@ export async function POST(request: NextRequest) {
       })
       .returning();
 
+    // Auto-advance to "preparing" after 2 seconds
+    const orderId = order.id;
+    setTimeout(async () => {
+      try {
+        await db
+          .update(orders)
+          .set({ status: "preparing", updatedAt: new Date() })
+          .where(and(eq(orders.id, orderId), eq(orders.status, "received")));
+      } catch (err) {
+        console.error("Failed to auto-advance order to preparing:", err);
+      }
+    }, 2000);
+
     return NextResponse.json({ id: order.id }, { status: 201 });
   } catch (error) {
     console.error("Error creating order:", error);
