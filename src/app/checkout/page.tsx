@@ -469,7 +469,7 @@ export default function CheckoutPage() {
               </p>
             )}
             <p id="phone-help" className="mt-1.5 text-xs text-muted">
-              We&apos;ll text you when your order is ready. By providing your number, you consent to receive a one-time SMS notification about this order. Standard messaging rates may apply. See our{" "}
+              By entering your phone number, you agree to receive a one-time SMS notification when your order is ready. Msg &amp; data rates may apply. Reply STOP to opt out. See our{" "}
               <Link href="/privacy" className="text-brand underline">Privacy Policy</Link>.
             </p>
           </section>

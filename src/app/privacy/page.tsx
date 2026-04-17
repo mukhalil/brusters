@@ -124,9 +124,11 @@ export default function PrivacyPage() {
           <h2 className="mt-6 text-lg font-bold">5. SMS Communications</h2>
           <p>
             By providing your phone number at checkout, you consent to receive
-            a one-time SMS message notifying you that your order is ready. We
+            a one-time SMS message notifying you that your order is ready for
+            pickup. Message frequency: 1 message per order. Message and data
+            rates may apply. Reply STOP to cancel or HELP for assistance. We
             will not use your phone number for marketing or any other purpose.
-            Standard messaging rates may apply.
+            Your phone number is not shared with third parties.
           </p>
 
           <h2 className="mt-6 text-lg font-bold">6. Cookies &amp; Analytics</h2>
