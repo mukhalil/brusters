@@ -12,8 +12,10 @@
     "@neondatabase/serverless": "^1.0.2",
     "@square/web-payments-sdk-types": "^1.83.2",
     "drizzle-orm": "^0.45.2",
+    "nanoid": "^5.1.9",
     "next": "16.2.3",
     "posthog-js": "^1.367.0",
+    "qrcode": "^1.5.4",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "square": "^44.0.1",
@@ -23,6 +25,7 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
+    "@types/qrcode": "^1.5.6",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "drizzle-kit": "^0.31.10",

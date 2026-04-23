@@ -14,6 +14,7 @@ import type { Order, OrderStatus } from "@/types/order";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { StaffNav } from "@/components/staff/staff-nav";
 
 type FilterMode = "active" | "all";
 
@@ -319,20 +320,7 @@ export default function StaffDashboardPage() {
     <div className="flex min-h-dvh flex-col bg-surface">
       {/* Header */}
       <header className="sticky top-0 z-50 flex h-14 items-center justify-between border-b border-border bg-white px-4">
-        <div className="flex items-center gap-1">
-          <Link
-            href="/staff/dashboard"
-            className="rounded-full px-3 py-1.5 text-sm font-medium bg-brand text-white"
-          >
-            Orders
-          </Link>
-          <Link
-            href="/staff/menu"
-            className="rounded-full px-3 py-1.5 text-sm font-medium text-muted"
-          >
-            Menu
-          </Link>
-        </div>
+        <StaffNav />
 
         {/* Filter toggle */}
         <div className="flex rounded-full border border-border bg-surface p-0.5">
