@@ -92,11 +92,15 @@ export default function CheckoutPage() {
   // Build car description from visual selections
   const carDescription = [carColor, carType].filter(Boolean).join(" ");
 
-  const phoneReady = phoneNumber.replace(/\D/g, "").length === 10;
+  const phoneDigits = phoneNumber.replace(/\D/g, "");
+  const phoneComplete = phoneDigits.length === 10;
+  const phoneInvalid = phoneDigits.length > 0 && !phoneComplete;
+  // Phone is optional but recommended — accept empty or fully-valid, reject partial.
+  const phoneOk = phoneDigits.length === 0 || phoneComplete;
   const carReady = carColor !== null && carType !== null;
   const locationReady =
-    (deliveryMode === "curbside" && carReady && phoneReady) ||
-    (locationMethod === "counter" && phoneReady);
+    (deliveryMode === "curbside" && carReady && phoneOk) ||
+    (locationMethod === "counter" && phoneOk);
 
   // Step 1 gating: name + delivery + phone must be complete + store open
   const canProceedToPayment =
@@ -425,21 +429,30 @@ export default function CheckoutPage() {
             />
           </section>
 
-          {/* Phone Number */}
+          {/* Phone Number — optional but recommended */}
           <section className="mb-5">
-            <label
-              htmlFor="phone-number"
-              className="mb-2 block text-sm font-semibold text-charcoal"
-            >
-              Phone number
-            </label>
+            <div className="mb-2 flex items-center gap-2">
+              <label htmlFor="phone-number" className="text-sm font-semibold text-charcoal">
+                Phone number
+              </label>
+              <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-green-700">
+                Recommended
+              </span>
+              <span className="text-xs text-muted">Optional</span>
+            </div>
+            <p className="mb-2 flex items-start gap-1.5 text-xs text-charcoal/80">
+              <svg xmlns="http://www.w3.org/2000/svg" className="mt-0.5 h-3.5 w-3.5 shrink-0 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
+              </svg>
+              <span>Add it and we&apos;ll text you the moment your order&apos;s ready.</span>
+            </p>
             <input
               id="phone-number"
               type="tel"
               inputMode="tel"
               autoComplete="tel"
               aria-describedby="phone-error phone-help"
-              aria-invalid={phoneNumber.length > 0 && phoneNumber.replace(/\D/g, "").length < 10 ? "true" : undefined}
+              aria-invalid={phoneInvalid ? "true" : undefined}
               value={phoneNumber}
               onChange={(e) => {
                 const digits = e.target.value.replace(/\D/g, "").slice(0, 10);
@@ -456,16 +469,16 @@ export default function CheckoutPage() {
               placeholder="(555) 123-4567"
               className={cn(
                 "w-full rounded-xl border bg-white px-4 py-3 text-charcoal placeholder:text-muted/60 focus:outline-none focus:ring-1",
-                phoneNumber.length > 0 && phoneNumber.replace(/\D/g, "").length < 10
+                phoneInvalid
                   ? "border-red-300 focus:border-red-400 focus:ring-red-200"
-                  : phoneNumber.replace(/\D/g, "").length === 10
+                  : phoneComplete
                     ? "border-green-300 focus:border-green-400 focus:ring-green-200"
                     : "border-border focus:border-brand focus:ring-brand"
               )}
             />
-            {phoneNumber.length > 0 && phoneNumber.replace(/\D/g, "").length < 10 && (
+            {phoneInvalid && (
               <p id="phone-error" role="alert" className="mt-1 text-xs text-red-500">
-                Please enter a valid 10-digit US phone number
+                Please enter a valid 10-digit US phone number, or leave blank.
               </p>
             )}
             <p id="phone-help" className="mt-1.5 text-xs text-muted">
@@ -712,12 +725,21 @@ export default function CheckoutPage() {
                 </svg>
                 <span>{deliverySummary()}</span>
               </div>
-              <div className="flex items-center gap-2 text-sm text-muted">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
-                </svg>
-                <span>{phoneNumber}</span>
-              </div>
+              {phoneComplete ? (
+                <div className="flex items-center gap-2 text-sm text-muted">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
+                  </svg>
+                  <span>{phoneNumber}</span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 text-xs text-amber-700">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                  </svg>
+                  <span>No phone — listen for your order code to be called at the counter.</span>
+                </div>
+              )}
             </div>
           </section>
 
