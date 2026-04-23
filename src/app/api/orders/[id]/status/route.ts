@@ -5,6 +5,7 @@ import { eq } from "drizzle-orm";
 import { type OrderStatus, getValidTransitions } from "@/types/order";
 import { sendSms } from "@/lib/sms";
 import { shortOrderId } from "@/lib/utils";
+import { loadEventById, eventDisplayName } from "@/lib/events";
 
 export async function PATCH(
   request: NextRequest,
@@ -62,10 +63,25 @@ export async function PATCH(
     if (newStatus === "ready" && currentOrder.phoneNumber) {
       const orderCode = shortOrderId(currentOrder.id);
       const isCounter = currentOrder.locationType === "counter";
+      const isEvent = currentOrder.locationType === "event";
 
-      const message = isCounter
-        ? `Your order ${orderCode} is ready! Head to the counter to pick it up. - Park and Order`
-        : `Your order ${orderCode} is ready! A server will bring it to your car shortly. - Park and Order`;
+      let message: string;
+      if (isEvent && currentOrder.eventId) {
+        const event = await loadEventById(currentOrder.eventId);
+        const brand = event ? eventDisplayName(event) : "Park and Order";
+        const pickup = event?.pickupInstructions
+          ? event.pickupInstructions
+          : "the pickup station";
+        const queueTag =
+          typeof currentOrder.queueNumber === "number"
+            ? `#${String(currentOrder.queueNumber).padStart(2, "0")}`
+            : orderCode;
+        message = `Order ${queueTag} is ready! Pick up at ${pickup}. — ${brand}`;
+      } else if (isCounter) {
+        message = `Your order ${orderCode} is ready! Head to the counter to pick it up. - Park and Order`;
+      } else {
+        message = `Your order ${orderCode} is ready! A server will bring it to your car shortly. - Park and Order`;
+      }
 
       try {
         await sendSms(currentOrder.phoneNumber, message);

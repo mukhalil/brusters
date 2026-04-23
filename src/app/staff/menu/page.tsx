@@ -2,10 +2,10 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { formatCurrency, cn } from "@/lib/utils";
 import { categories, getItemsByCategory, flavors } from "@/lib/menu-data";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { StaffNav } from "@/components/staff/staff-nav";
 import type { MenuItem } from "@/types/menu";
 
 function ToggleSwitch({
@@ -176,20 +176,7 @@ export default function StaffMenuPage() {
     <div className="flex min-h-dvh flex-col bg-surface">
       {/* Header with tab nav */}
       <header className="sticky top-0 z-50 flex h-14 items-center justify-between border-b border-border bg-white px-4">
-        <div className="flex items-center gap-1">
-          <Link
-            href="/staff/dashboard"
-            className="rounded-full px-3 py-1.5 text-sm font-medium text-muted"
-          >
-            Orders
-          </Link>
-          <Link
-            href="/staff/menu"
-            className="rounded-full px-3 py-1.5 text-sm font-medium bg-brand text-white"
-          >
-            Menu
-          </Link>
-        </div>
+        <StaffNav />
         {unavailableCount > 0 && (
           <span className="text-xs text-red-500 font-medium">
             {unavailableCount} unavailable
