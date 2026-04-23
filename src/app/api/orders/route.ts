@@ -59,14 +59,15 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Phone number required for all orders
-    if (!phoneNumber || typeof phoneNumber !== "string") {
-      return NextResponse.json(
-        { error: "Phone number is required" },
-        { status: 400 }
-      );
-    }
-    {
+    // Phone number is optional, but if provided must be a valid 10-digit US number
+    // (so the SMS-on-ready path doesn't try to text a malformed number).
+    if (phoneNumber != null && phoneNumber !== "") {
+      if (typeof phoneNumber !== "string") {
+        return NextResponse.json(
+          { error: "Phone number must be a string" },
+          { status: 400 }
+        );
+      }
       const digits = phoneNumber.replace(/\D/g, "");
       if (digits.length !== 10) {
         return NextResponse.json(
