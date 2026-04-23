@@ -76,11 +76,11 @@ export async function PATCH(
           typeof currentOrder.queueNumber === "number"
             ? `#${String(currentOrder.queueNumber).padStart(2, "0")}`
             : orderCode;
-        message = `Order ${queueTag} is ready! Pick up at ${pickup}. — ${brand}`;
+        message = `Order ${queueTag} is ready! Pick up at ${pickup}. — ${brand}\n\nReply STOP to opt out.`;
       } else if (isCounter) {
-        message = `Your order ${orderCode} is ready! Head to the counter to pick it up. - Park and Order`;
+        message = `Your order ${orderCode} is ready! Head to the counter to pick it up. - Park and Order\n\nReply STOP to opt out.`;
       } else {
-        message = `Your order ${orderCode} is ready! A server will bring it to your car shortly. - Park and Order`;
+        message = `Your order ${orderCode} is ready! A server will bring it to your car shortly. - Park and Order\n\nReply STOP to opt out.`;
       }
 
       try {
