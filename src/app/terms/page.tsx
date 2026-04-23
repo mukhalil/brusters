@@ -38,7 +38,7 @@ export default function TermsPage() {
 
       <main className="mx-auto w-full max-w-2xl flex-1 px-5 py-8">
         <div className="prose prose-sm max-w-none text-charcoal">
-          <p className="text-sm text-muted">Last updated: April 13, 2026</p>
+          <p className="text-sm text-muted">Last updated: April 23, 2026</p>
 
           <h2 className="mt-6 text-lg font-bold">1. Overview</h2>
           <p>
@@ -78,15 +78,58 @@ export default function TermsPage() {
             discretion.
           </p>
 
-          <h2 className="mt-6 text-lg font-bold">5. Accuracy of Information</h2>
+          <h2 className="mt-6 text-lg font-bold">5. SMS Notifications</h2>
           <p>
-            You agree to provide accurate and complete information when placing
-            an order, including your name, phone number, and vehicle description
-            or location. We are not responsible for orders that cannot be
-            delivered due to inaccurate information.
+            <strong>Program name:</strong>{" "}Park and Order Order-Ready
+            Notifications.
+          </p>
+          <p>
+            <strong>Description:</strong>{" "}When you provide your mobile phone
+            number at checkout, we&apos;ll send you a text message when your
+            order is ready for pickup or delivery. Providing your phone number
+            is <em>optional</em> and is not a condition of purchase. If you
+            prefer, you can place an order without a phone number and listen
+            for your order code to be called at the counter.
+          </p>
+          <p>
+            <strong>Message frequency:</strong>{" "}Up to one message per order
+            placed. Overall frequency depends on how many orders you place.
+          </p>
+          <p>
+            <strong>Message and data rates:</strong>{" "}Message and data rates may
+            apply. Check with your mobile carrier for details.
+          </p>
+          <p>
+            <strong>Help:</strong>{" "}Reply <strong>HELP</strong> to any message
+            for support, or email us at{" "}
+            <a href="mailto:thejuni2@gmail.com" className="text-brand underline">
+              thejuni2@gmail.com
+            </a>
+            .
+          </p>
+          <p>
+            <strong>Opt out:</strong>{" "}Reply <strong>STOP</strong> to any
+            message at any time to unsubscribe. Once you reply{" "}
+            <strong>STOP</strong>, you will no longer receive order-ready
+            notifications from this program. You can re-subscribe by providing
+            your phone number the next time you place an order.
+          </p>
+          <p>
+            <strong>Supported carriers:</strong>{" "}AT&amp;T, T-Mobile, Verizon,
+            Sprint, U.S. Cellular, and other major U.S. carriers. Carriers are
+            not liable for delayed or undelivered messages.
           </p>
 
-          <h2 className="mt-6 text-lg font-bold">6. Acceptable Use</h2>
+          <h2 className="mt-6 text-lg font-bold">6. Accuracy of Information</h2>
+          <p>
+            You agree to provide accurate and complete information when placing
+            an order, including your name, vehicle description or location (for
+            curbside orders), and phone number (if you choose to share one so
+            we can text you when your order is ready). We are not responsible
+            for orders that cannot be delivered due to inaccurate information.
+          </p>
+
+          <h2 className="mt-6 text-lg font-bold">7. Acceptable Use</h2>
           <p>
             You agree not to misuse our ordering platform, including but not
             limited to: placing fraudulent orders, using stolen payment methods,
@@ -95,7 +138,7 @@ export default function TermsPage() {
           </p>
 
           <h2 className="mt-6 text-lg font-bold">
-            7. Limitation of Liability
+            8. Limitation of Liability
           </h2>
           <p>
             To the fullest extent permitted by law, Park and Order by Juni
@@ -105,7 +148,7 @@ export default function TermsPage() {
             the amount you paid for the order giving rise to the claim.
           </p>
 
-          <h2 className="mt-6 text-lg font-bold">8. Disclaimer</h2>
+          <h2 className="mt-6 text-lg font-bold">9. Disclaimer</h2>
           <p>
             Our ordering service is provided &quot;as is&quot; and &quot;as
             available&quot; without warranties of any kind, either express or
@@ -113,7 +156,7 @@ export default function TermsPage() {
             the platform.
           </p>
 
-          <h2 className="mt-6 text-lg font-bold">9. Changes to These Terms</h2>
+          <h2 className="mt-6 text-lg font-bold">10. Changes to These Terms</h2>
           <p>
             We reserve the right to update these Terms at any time. Changes will
             be effective when posted on this page with an updated date. Your
@@ -121,7 +164,7 @@ export default function TermsPage() {
             the updated Terms.
           </p>
 
-          <h2 className="mt-6 text-lg font-bold">10. Governing Law</h2>
+          <h2 className="mt-6 text-lg font-bold">11. Governing Law</h2>
           <p>
             These Terms are governed by the laws of the State of California,
             without regard to conflict of law provisions. Any disputes arising
@@ -129,7 +172,7 @@ export default function TermsPage() {
             County, California.
           </p>
 
-          <h2 className="mt-6 text-lg font-bold">11. Contact Us</h2>
+          <h2 className="mt-6 text-lg font-bold">12. Contact Us</h2>
           <p>
             If you have questions about these Terms, please contact us at
             thejuni2@gmail.com.
