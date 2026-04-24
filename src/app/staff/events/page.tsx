@@ -6,7 +6,7 @@ import Link from "next/link";
 import { formatCurrency, cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
-import { StaffNav } from "@/components/staff/staff-nav";
+import { StaffBottomNav } from "@/components/staff/staff-bottom-nav";
 import type { Event } from "@/types/event";
 
 type EventWithStats = Event & {
@@ -61,7 +61,7 @@ export default function StaffEventsPage() {
   return (
     <div className="flex min-h-dvh flex-col bg-surface">
       <header className="sticky top-0 z-50 flex h-14 items-center justify-between border-b border-border bg-white px-4">
-        <StaffNav />
+        <h1 className="text-base font-bold text-charcoal">Events</h1>
         <Link href="/staff/events/new">
           <Button variant="primary" size="sm">
             New Event
@@ -69,7 +69,7 @@ export default function StaffEventsPage() {
         </Link>
       </header>
 
-      <main className="mx-auto w-full max-w-lg flex-1 px-4 py-4">
+      <main className="mx-auto w-full max-w-lg flex-1 px-4 py-4 pb-28">
         {loading ? (
           <div className="flex items-center justify-center py-16">
             <LoadingSpinner size="lg" />
@@ -163,6 +163,8 @@ export default function StaffEventsPage() {
           </div>
         )}
       </main>
+
+      <StaffBottomNav />
     </div>
   );
 }
