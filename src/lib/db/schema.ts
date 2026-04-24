@@ -39,6 +39,11 @@ export const events = pgTable(
 
     pickupInstructions: text("pickup_instructions"),
 
+    // PIN that gates the read-only order summary share link for the host/contact.
+    // Stored in cleartext: low-stakes 4–8 digit code that only protects revenue
+    // tallies for an already-public-by-QR event.
+    contactPin: varchar("contact_pin", { length: 12 }),
+
     // Branding
     brandName: varchar("brand_name", { length: 120 }),
     brandLogoUrl: text("brand_logo_url"),

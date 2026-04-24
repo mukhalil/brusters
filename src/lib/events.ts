@@ -36,6 +36,7 @@ export function rowToEvent(row: any): Event {
     allowedExtraIds: row.allowedExtraIds ?? null,
     status: row.status,
     pickupInstructions: row.pickupInstructions,
+    contactPin: row.contactPin,
     brandName: row.brandName,
     brandLogoUrl: row.brandLogoUrl,
     brandPrimaryColor: row.brandPrimaryColor,

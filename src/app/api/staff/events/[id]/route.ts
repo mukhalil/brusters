@@ -90,6 +90,19 @@ export async function PATCH(
       update.status = body.status as EventStatus;
     }
     if ("pickupInstructions" in body) update.pickupInstructions = body.pickupInstructions ?? null;
+    if ("contactPin" in body) {
+      const pin = body.contactPin;
+      if (pin == null || pin === "") {
+        update.contactPin = null;
+      } else if (typeof pin === "string" && /^\d{4,8}$/.test(pin)) {
+        update.contactPin = pin;
+      } else {
+        return NextResponse.json(
+          { error: "Contact PIN must be 4–8 digits" },
+          { status: 400 }
+        );
+      }
+    }
     if ("brandName" in body) update.brandName = body.brandName ?? null;
     if ("brandLogoUrl" in body) {
       const check = validateLogoUrl(body.brandLogoUrl);
