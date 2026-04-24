@@ -29,7 +29,8 @@ export async function GET(
       .select()
       .from(orders)
       .where(where)
-      .orderBy(sql`${orders.queueNumber} asc nulls last, ${orders.createdAt} asc`);
+      // Most recent first, so newly placed orders surface at the top of the queue.
+      .orderBy(sql`${orders.createdAt} desc, ${orders.queueNumber} desc nulls last`);
 
     return NextResponse.json(rows);
   } catch (error) {
