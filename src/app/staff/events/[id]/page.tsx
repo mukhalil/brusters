@@ -7,6 +7,7 @@ import { cn, timeAgo } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { QRCodeDisplay } from "@/components/staff/qr-code";
+import { StaffBottomNav } from "@/components/staff/staff-bottom-nav";
 import {
   EventForm,
   initialValues,
@@ -218,7 +219,7 @@ export default function StaffEventDetailPage({
         ))}
       </div>
 
-      <main className="mx-auto w-full max-w-lg flex-1 px-4 py-4">
+      <main className="mx-auto w-full max-w-lg flex-1 px-4 py-4 pb-28">
         {tab === "queue" && (
           <>
             <div className="mb-4 grid grid-cols-3 gap-2">
@@ -445,6 +446,8 @@ export default function StaffEventDetailPage({
           </div>
         )}
       </main>
+
+      <StaffBottomNav />
     </div>
   );
 }

@@ -6,6 +6,7 @@ import { formatCurrency, cn } from "@/lib/utils";
 import { categories, getItemsByCategory, flavors } from "@/lib/menu-data";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { StaffNav } from "@/components/staff/staff-nav";
+import { StaffBottomNav } from "@/components/staff/staff-bottom-nav";
 import type { MenuItem } from "@/types/menu";
 
 function ToggleSwitch({
@@ -184,7 +185,7 @@ export default function StaffMenuPage() {
         )}
       </header>
 
-      <main className="mx-auto w-full max-w-lg flex-1 px-4 py-4">
+      <main className="mx-auto w-full max-w-lg flex-1 px-4 py-4 pb-28">
         {loading ? (
           <div className="flex items-center justify-center py-16" role="status">
             <LoadingSpinner size="lg" />
@@ -243,6 +244,8 @@ export default function StaffMenuPage() {
           </div>
         )}
       </main>
+
+      <StaffBottomNav />
     </div>
   );
 }

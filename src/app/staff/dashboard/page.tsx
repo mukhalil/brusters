@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { StaffNav } from "@/components/staff/staff-nav";
+import { StaffBottomNav } from "@/components/staff/staff-bottom-nav";
 
 type FilterMode = "active" | "all";
 
@@ -389,7 +390,7 @@ export default function StaffDashboardPage() {
         </button>
       </div>
 
-      <main className="mx-auto w-full max-w-lg flex-1 px-4 py-4">
+      <main className="mx-auto w-full max-w-lg flex-1 px-4 py-4 pb-28">
         {loading ? (
           <div className="flex items-center justify-center py-16">
             <LoadingSpinner size="lg" />
@@ -414,6 +415,8 @@ export default function StaffDashboardPage() {
           </div>
         )}
       </main>
+
+      <StaffBottomNav />
     </div>
   );
 }
