@@ -21,6 +21,7 @@ export interface EventFormValues {
   allowedExtraIds: string[] | null;
   status: EventStatus;
   pickupInstructions: string;
+  contactPin: string;
   brandName: string;
   brandLogoUrl: string;
   brandPrimaryColor: string;
@@ -45,6 +46,7 @@ export function initialValues(event?: Event): EventFormValues {
     allowedExtraIds: event?.allowedExtraIds ?? null,
     status: event?.status ?? "draft",
     pickupInstructions: event?.pickupInstructions ?? "",
+    contactPin: event?.contactPin ?? "",
     brandName: event?.brandName ?? "",
     brandLogoUrl: event?.brandLogoUrl ?? "",
     brandPrimaryColor: event?.brandPrimaryColor ?? "",
@@ -69,6 +71,7 @@ export function valuesToBody(v: EventFormValues) {
     allowedExtraIds: v.allowedExtraIds,
     status: v.status,
     pickupInstructions: v.pickupInstructions.trim() || null,
+    contactPin: v.contactPin.trim() || null,
     brandName: v.brandName.trim() || null,
     brandLogoUrl: v.brandLogoUrl.trim() || null,
     brandPrimaryColor: v.brandPrimaryColor.trim() || null,
@@ -349,6 +352,45 @@ export function EventForm({
               Counted per phone number. Leave blank for unlimited.
             </p>
           </div>
+        </div>
+      </Section>
+
+      {/* Share with contact */}
+      <Section
+        title="Share with contact"
+        subtitle="Set a 4–8 digit PIN so the event contact can view a per-guest order summary."
+      >
+        <div className="flex flex-col gap-3">
+          <div>
+            <Label htmlFor="contact-pin">Contact PIN</Label>
+            <input
+              id="contact-pin"
+              type="text"
+              inputMode="numeric"
+              autoComplete="off"
+              maxLength={8}
+              placeholder="Disabled"
+              className={inputBase + " max-w-[180px] tracking-[0.3em] font-mono"}
+              value={value.contactPin}
+              onChange={(e) => set("contactPin", e.target.value.replace(/\D/g, "").slice(0, 8))}
+            />
+            <p className="mt-1 text-xs text-muted">
+              Leave blank to disable summary sharing. Share the PIN with the
+              event contact via your usual channel.
+            </p>
+          </div>
+          {value.contactPin && (
+            <div className="rounded-lg border border-border bg-surface px-3 py-2 text-xs">
+              <p className="font-semibold text-charcoal">Share link</p>
+              <p className="mt-0.5 break-all text-muted">
+                {typeof window !== "undefined" ? window.location.origin : ""}
+                /event/<span className="font-mono">[event-slug]</span>/summary
+              </p>
+              <p className="mt-1 text-muted/80">
+                Find the exact link with the slug on the event detail page once saved.
+              </p>
+            </div>
+          )}
         </div>
       </Section>
 

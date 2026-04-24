@@ -102,6 +102,7 @@ export async function POST(request: NextRequest) {
         allowedExtraIds: Array.isArray(body.allowedExtraIds) ? body.allowedExtraIds : null,
         status,
         pickupInstructions: body.pickupInstructions ?? null,
+        contactPin: typeof body.contactPin === "string" && /^\d{4,8}$/.test(body.contactPin) ? body.contactPin : null,
         brandName: body.brandName ?? null,
         brandLogoUrl: body.brandLogoUrl ?? null,
         brandPrimaryColor: body.brandPrimaryColor ?? null,

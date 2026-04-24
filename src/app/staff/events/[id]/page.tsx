@@ -3,7 +3,7 @@
 import { use, useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { formatCurrency, cn, timeAgo } from "@/lib/utils";
+import { cn, timeAgo } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { QRCodeDisplay } from "@/components/staff/qr-code";
@@ -221,15 +221,10 @@ export default function StaffEventDetailPage({
       <main className="mx-auto w-full max-w-lg flex-1 px-4 py-4">
         {tab === "queue" && (
           <>
-            <div className="mb-4 grid grid-cols-4 gap-2">
+            <div className="mb-4 grid grid-cols-3 gap-2">
               <StatTile label="Placed" value={data.stats.ordersPlaced} />
               <StatTile label="Ready" value={data.stats.ordersReady} accent="green" />
               <StatTile label="Done" value={data.stats.ordersCompleted} />
-              <StatTile
-                label={event.paymentMode === "individual" ? "Revenue" : "Value"}
-                value={formatCurrency(data.stats.revenue)}
-                small
-              />
             </div>
 
             {ordersLoading ? (
@@ -353,6 +348,82 @@ export default function StaffEventDetailPage({
                 in Settings so guests can place orders.
               </p>
             )}
+
+            {/* Contact summary share */}
+            <div className="mt-4 w-full rounded-xl border border-border bg-white p-4 text-left">
+              <p className="text-sm font-semibold text-charcoal">
+                Share order summary with the contact
+              </p>
+              {event.contactPin ? (
+                <>
+                  <p className="mt-1 text-xs text-muted">
+                    The contact can enter the PIN to see what each guest ordered
+                    and the dollar total.
+                  </p>
+                  <div className="mt-3 grid gap-2">
+                    <div className="rounded-lg border border-border bg-surface px-3 py-2">
+                      <p className="text-[10px] font-semibold uppercase tracking-wide text-muted">
+                        Link
+                      </p>
+                      <p className="break-all text-xs text-charcoal">
+                        {`${typeof window !== "undefined" ? window.location.origin : ""}/event/${event.slug}/summary`}
+                      </p>
+                    </div>
+                    <div className="rounded-lg border border-border bg-surface px-3 py-2">
+                      <p className="text-[10px] font-semibold uppercase tracking-wide text-muted">
+                        PIN
+                      </p>
+                      <p className="font-mono text-base tracking-[0.3em] text-charcoal">
+                        {event.contactPin}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="mt-3 flex flex-wrap justify-center gap-2">
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      onClick={() =>
+                        navigator.clipboard?.writeText(
+                          `${window.location.origin}/event/${event.slug}/summary`
+                        )
+                      }
+                    >
+                      Copy link
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      onClick={() =>
+                        navigator.clipboard?.writeText(event.contactPin ?? "")
+                      }
+                    >
+                      Copy PIN
+                    </Button>
+                    <a
+                      href={`/event/${event.slug}/summary`}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <Button size="sm" variant="primary">
+                        Open
+                      </Button>
+                    </a>
+                  </div>
+                </>
+              ) : (
+                <p className="mt-1 text-xs text-muted">
+                  Set a 4–8 digit <strong>Contact PIN</strong> in{" "}
+                  <button
+                    type="button"
+                    onClick={() => setTab("settings")}
+                    className="text-brand underline"
+                  >
+                    Settings
+                  </button>{" "}
+                  to enable sharing.
+                </p>
+              )}
+            </div>
           </div>
         )}
 

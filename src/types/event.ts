@@ -26,6 +26,7 @@ export interface Event extends EventBranding {
   allowedExtraIds: string[] | null;
   status: EventStatus;
   pickupInstructions: string | null;
+  contactPin: string | null;
   createdAt: string;
   updatedAt: string;
 }
