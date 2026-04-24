@@ -27,21 +27,81 @@ export async function POST(
       return NextResponse.json({ error: "Incorrect PIN" }, { status: 401 });
     }
 
-    // Aggregate by phone (the natural identity key) but display the most-recent name.
-    // Cancelled orders excluded from totals.
-    const rows = await db
+    // Pull raw orders and group in JS — keeps line items accessible per guest
+    // without an awkward jsonb_agg in SQL. For typical event volume (sub-1k
+    // orders) the in-memory grouping is trivial.
+    const rawOrders = await db
       .select({
+        id: orders.id,
         phoneNumber: orders.phoneNumber,
-        name: sql<string>`(array_agg(${orders.customerName} order by ${orders.createdAt} desc))[1]`,
-        orderCount: sql<number>`count(*)::int`,
-        total: sql<number>`coalesce(sum(${orders.total})::float, 0)`,
-        firstAt: sql<string>`min(${orders.createdAt})`,
-        lastAt: sql<string>`max(${orders.createdAt})`,
+        customerName: orders.customerName,
+        items: orders.items,
+        total: orders.total,
+        createdAt: orders.createdAt,
       })
       .from(orders)
       .where(sql`${orders.eventId} = ${event.id} and ${orders.status} != 'cancelled'`)
-      .groupBy(orders.phoneNumber)
-      .orderBy(sql`coalesce(sum(${orders.total})::float, 0) desc`);
+      .orderBy(sql`${orders.createdAt} asc`);
+
+    interface GuestOrder {
+      id: string;
+      total: number;
+      createdAt: string;
+      items: Array<{
+        menuItemId: string;
+        name: string;
+        price: number;
+        quantity: number;
+        flavors?: string[];
+        extras?: string[];
+      }>;
+    }
+    interface GuestAgg {
+      phoneNumber: string | null;
+      name: string;
+      orderCount: number;
+      total: number;
+      firstAt: string;
+      lastAt: string;
+      orders: GuestOrder[];
+    }
+
+    const byKey = new Map<string, GuestAgg>();
+    for (const row of rawOrders) {
+      const key = row.phoneNumber ?? `__noname__${row.customerName}`;
+      const total = parseFloat(row.total as unknown as string);
+      const createdAt = new Date(row.createdAt).toISOString();
+      const order: GuestOrder = {
+        id: row.id,
+        total,
+        createdAt,
+        items: (row.items as GuestOrder["items"]) ?? [],
+      };
+      const existing = byKey.get(key);
+      if (existing) {
+        existing.orderCount += 1;
+        existing.total += total;
+        // Most recent name wins
+        if (createdAt > existing.lastAt) {
+          existing.name = row.customerName;
+          existing.lastAt = createdAt;
+        }
+        if (createdAt < existing.firstAt) existing.firstAt = createdAt;
+        existing.orders.push(order);
+      } else {
+        byKey.set(key, {
+          phoneNumber: row.phoneNumber,
+          name: row.customerName,
+          orderCount: 1,
+          total,
+          firstAt: createdAt,
+          lastAt: createdAt,
+          orders: [order],
+        });
+      }
+    }
+
+    const rows = Array.from(byKey.values()).sort((a, b) => b.total - a.total);
 
     // Cancelled stats — separate so the contact can see they happened without inflating revenue.
     const [cancelled] = await db
@@ -78,6 +138,7 @@ export async function POST(
         total: r.total,
         firstAt: r.firstAt,
         lastAt: r.lastAt,
+        orders: r.orders,
       })),
     });
 
