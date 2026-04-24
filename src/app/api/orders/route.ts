@@ -274,23 +274,30 @@ export async function GET(request: NextRequest) {
 
     let result;
 
+    // Exclude event/catering orders — those live on their own /staff/events/[id] page.
+    const notEvent = sql`${orders.eventId} is null`;
+
     if (status === "active") {
       result = await db
         .select()
         .from(orders)
         .where(
-          inArray(orders.status, [
-            "received",
-            "preparing",
-            "ready",
-            "delivering",
-          ])
+          and(
+            notEvent,
+            inArray(orders.status, [
+              "received",
+              "preparing",
+              "ready",
+              "delivering",
+            ])
+          )
         )
         .orderBy(sql`${orders.createdAt} asc`);
     } else {
       result = await db
         .select()
         .from(orders)
+        .where(notEvent)
         .orderBy(sql`${orders.createdAt} asc`);
     }
 
