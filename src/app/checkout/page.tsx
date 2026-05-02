@@ -483,6 +483,7 @@ export default function CheckoutPage() {
             )}
             <p id="phone-help" className="mt-1.5 text-xs text-muted">
               By entering your phone number, you agree to receive a one-time SMS notification when your order is ready. Msg &amp; data rates may apply. Reply STOP to opt out. See our{" "}
+              <Link href="/terms" className="text-brand underline">Terms of Service</Link>{" "}and{" "}
               <Link href="/privacy" className="text-brand underline">Privacy Policy</Link>.
             </p>
           </section>
